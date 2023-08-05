@@ -1,0 +1,1 @@
+```git movelaststo [branch] [n]``` removes the last ```n``` commits from the current branch and then move them to the given ```branch``` (possibly creating it <b>from the current one</b>, if not existing).
