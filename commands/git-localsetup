@@ -12,5 +12,5 @@ if [[ "${command}" == "use" ]]; then
         index="$(echo "${stash}" | sed -r 's/(stash@\{|\}.*)+//g')"
         git stash apply --index ${index}
 elif [[ "${command}" == "save" ]]; then
-        git stash push -m "${message}"
+        git stash push --all -m "${message}"
 fi
