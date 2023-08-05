@@ -10,7 +10,7 @@ exit_code=0
 changed=$(git diff --cached --name-status | grep -v "^D" | sed -r 's/^.*\s+//g' | grep "^commands")
 
 # No directories
-if [ $(echo ${changed} | xargs -L 1 -i bash -c '[ -d {} ] && echo Y || echo N' | grep Y | wc -l) -ne 0 ]; then
+if [ $(echo ${changed} | xargs -L 1 -i bash -c '[[ $(dirname {}) != ${commands_dir} ]] && echo Y || echo N' | grep Y | wc -l) -ne 0 ]; then
 	echo "ERROR: 'commands' dir contains some dir"
 	exit_code=1
 fi
