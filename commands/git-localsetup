@@ -1,0 +1,16 @@
+#!/bin/bash
+
+command=$1
+env=$2
+message="local-setup:${env}"
+if [[ "${command}" == "use" ]]; then
+        stash="$(git stash list | grep ${message} | head -n 1)"
+        if [[ -z "${stash}" ]]; then
+                echo "Local setup for '$1' not found"
+                exit 1
+        fi
+        index="$(echo "${stash}" | sed -r 's/(stash@\{|\}.*)+//g')"
+        git stash apply --index ${index}
+elif [[ "${command}" == "save" ]]; then
+        git stash push -m "${message}"
+fi
