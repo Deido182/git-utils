@@ -1,0 +1,1 @@
+```git localsetup save``` stores the setup to run the project locally. It takes a ```key``` as argument (ideally, the ```env``` the setup refers to) and ```stashes``` the current changes. Then ```git localsetup use [key]``` reloads the last saved setup for the given ```key```.
