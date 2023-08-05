@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# git hook that runs before each commit; it is just a way to prevent usually-not-correct behaviors, 
+# but it is not intended to implement rigorous policies (indeed, it can be easily disabled through --no-verify)
+
+root_dir="$(git rev-parse --show-toplevel)"
+commands_dir="${root_dir}/commands"
+exit_code=0
+
+changed=$(git diff --cached --name-status | grep -v "^D" | sed -r 's/^.*\s+//g' | grep "^commands")
+
+# No directories
+if [ $(echo ${changed} | xargs -L 1 -i bash -c '[ -d {} ] && echo Y || echo N' | grep Y | wc -l) -ne 0 ]; then
+	echo "ERROR: 'commands' dir contains some dir"
+	exit_code=1
+fi
+
+# All files starting with 'git-'
+if [ $(echo ${changed} | xargs -L 1 -i bash -c '[[ $(basename {}) != git-* ]] && echo Y || echo N' | grep Y | wc -l) -ne 0 ]; then
+	echo "ERROR: 'commands' dir contains a file without the prefix 'git-'"
+	exit_code=1
+fi
+
+exit ${exit_code}
