@@ -1,0 +1,18 @@
+#!/bin/bash
+
+curr=$(git rev-parse --abbrev-ref HEAD)
+receiving="$1"
+if [ `git rev-parse --verify "$receiving" 2>/dev/null` ]; then
+   # The branch already exists
+   git checkout "$receiving"
+   git merge "$curr"
+   if [ $? = 0 ]; then
+      git checkout "$curr"
+      git reset --keep HEAD~"$2"
+   fi
+else
+   git branch "$receiving"
+   git reset --keep HEAD~"$2"
+   git checkout "$receiving"
+   git checkout "$curr"
+fi
