@@ -9,6 +9,12 @@ curr_dir="$(pwd)"
 root_dir="$(git rev-parse --show-toplevel)"
 test_repo="/tmp/$(basename ${root_dir})/test-repo"
 
+remove_test_repo() {
+	if [ -d "${test_repo}" ]; then
+		rm -r ${test_repo}
+	fi
+}
+
 # Run before each test; this function must be unique and all tests should source this file
 setup() {
     DIR="$( cd "$( dirname "$BATS_TEST_FILENAME" )" >/dev/null 2>&1 && pwd )"
@@ -16,7 +22,7 @@ setup() {
     PATH="$DIR/../commands:$PATH"
     
     # Setup new test-repo
-    rm -r ${test_repo}
+    remove_test_repo
 	cd ${test_repo}
 	git init
 	
@@ -28,5 +34,5 @@ setup() {
 # Run after each test; this function must be unique and all tests should source this file
 teardown() {
 	cd ${curr_dir}
-    rm -r ${test_repo}
+    remove_test_repo
 }
