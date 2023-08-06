@@ -8,11 +8,21 @@
 curr_dir="$(pwd)"
 root_dir="$(git rev-parse --show-toplevel)"
 test_repo="/tmp/$(basename ${root_dir})/test-repo"
+mocked_remote="/tmp/$(basename ${root_dir})/mocked-remote"
 
-remove_test_repo() {
-	if [ -d "${test_repo}" ]; then
-		yes | rm -r ${test_repo}
+remove_repo() {
+	if [ -d "$1" ]; then
+		yes | rm -r $1
 	fi
+}
+
+create_repo() {
+	remove_repo $1
+    mkdir -p $1 && \
+	cd $1 && \
+	git init && \
+	git commit -m "initial commit" --allow-empty # Necessary for HEAD
+	cd ${curr_dir}
 }
 
 # Run before each test; this function must be unique and all tests should source this file
@@ -22,12 +32,13 @@ setup() {
     PATH="$DIR/../commands:$PATH"
     
     # Setup new test-repo
-    remove_test_repo
-    mkdir -p ${test_repo}
-	cd ${test_repo}
-	git init
-	# Necessary for HEAD
-	git commit -m "initial commit" --allow-empty
+    create_repo ${test_repo}
+    create_repo ${mocked_remote}
+    # Add mocked remote
+    cd ${test_repo}
+    git config remote.origin.url "${mocked_remote}/.git"
+    git config branch.master.remote=origin
+    cd ${curr_dir}
 	
 	# Load std test utils
 	load 'test_helper/bats-support/load'
@@ -37,5 +48,6 @@ setup() {
 # Run after each test; this function must be unique and all tests should source this file
 teardown() {
 	cd ${curr_dir}
-    remove_test_repo
+    remove_repo ${test_repo}
+    remove_repo ${mocked_remote}
 }
