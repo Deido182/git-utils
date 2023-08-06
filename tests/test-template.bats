@@ -23,6 +23,7 @@ setup() {
     
     # Setup new test-repo
     remove_test_repo
+    mkdir -p ${test_repo}
 	cd ${test_repo}
 	git init
 	
