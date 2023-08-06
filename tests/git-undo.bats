@@ -1,6 +1,7 @@
 #!/usr/bin/env bats
 
-source test-template.bats
+# The bats version of 'source'
+load test-template.bats
 
 @test "undo last 2 commits" {
 	head_before=$(git rev-parse HEAD)
