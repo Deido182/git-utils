@@ -3,11 +3,9 @@
 root_dir="$(git rev-parse --show-toplevel)"
 tests_dir="${root_dir}/tests"
 
-git submodule add https://github.com/bats-core/bats-core.git ${tests_dir}/bats
-git submodule add https://github.com/bats-core/bats-support.git ${tests_dir}/test_helper/bats-support
-git submodule add https://github.com/bats-core/bats-assert.git ${tests_dir}/test_helper/bats-assert
-git submodule update --init
+git submodule add https://github.com/bats-core/bats-core.git ${tests_dir}/bats > /dev/null 2>&1
+git submodule add https://github.com/bats-core/bats-support.git ${tests_dir}/test_helper/bats-support > /dev/null 2>&1
+git submodule add https://github.com/bats-core/bats-assert.git ${tests_dir}/test_helper/bats-assert > /dev/null 2>&1
+git submodule update --init > /dev/null 2>&1
 
-echo $([[ ! -z "$@" ]] && echo "$@" || find ${tests_dir}/*.bats) | \
-	grep -v "^test-template.bats" | \
-	xargs -L 1 -i bash -c "${tests_dir}/bats/bin/bats {}"
+${tests_dir}/bats/bin/bats ${tests_dir}
