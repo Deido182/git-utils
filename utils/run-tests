@@ -3,6 +3,6 @@
 root_dir="$(git rev-parse --show-toplevel)"
 tests_dir="${root_dir}/tests"
 
-[[ -z "$@" ]] && echo "$@" || find ${tests_dir}/*.bats | \
+echo $([[ ! -z "$@" ]] && echo "$@" || find ${tests_dir}/*.bats) | \
 	grep -v "^test-template.bats" | \
 	xargs -L 1 -i bash -c ".${tests_dir}/bats/bin/bats {}"
