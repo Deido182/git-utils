@@ -11,7 +11,7 @@ test_repo="/tmp/$(basename ${root_dir})/test-repo"
 
 remove_test_repo() {
 	if [ -d "${test_repo}" ]; then
-		rm -r ${test_repo}
+		yes | rm -r ${test_repo}
 	fi
 }
 
@@ -26,6 +26,8 @@ setup() {
     mkdir -p ${test_repo}
 	cd ${test_repo}
 	git init
+	# Necessary for HEAD
+	git commit -m "initial commit" --allow-empty
 	
 	# Load std test utils
 	load 'test_helper/bats-support/load'
