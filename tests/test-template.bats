@@ -1,5 +1,10 @@
 #!/usr/bin/env bats
 
+# git submodule add https://github.com/bats-core/bats-core.git test/bats
+# git submodule add https://github.com/bats-core/bats-support.git test/test_helper/bats-support
+# git submodule add https://github.com/bats-core/bats-assert.git test/test_helper/bats-assert
+# git submodule update --init
+
 curr_dir="$(pwd)"
 root_dir="$(git rev-parse --show-toplevel)"
 test_repo="/tmp/$(basename ${root_dir})/test-repo"
