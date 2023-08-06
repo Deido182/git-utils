@@ -4,7 +4,6 @@
 load test-template.bats
 
 @test "update remote develop" {
-	git branch develop
 	git push -u origin develop
 	git commit -m "commit to push" --allow-empty
 	git updatedev
