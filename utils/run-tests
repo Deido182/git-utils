@@ -1,8 +1,13 @@
 #!/bin/bash
 
+git submodule add https://github.com/bats-core/bats-core.git test/bats
+git submodule add https://github.com/bats-core/bats-support.git test/test_helper/bats-support
+git submodule add https://github.com/bats-core/bats-assert.git test/test_helper/bats-assert
+git submodule update --init
+
 root_dir="$(git rev-parse --show-toplevel)"
 tests_dir="${root_dir}/tests"
 
-[[ -z "$@" ]] && echo "$@" || find ${tests_dir}/*.bats | \
+echo $([[ ! -z "$@" ]] && echo "$@" || find ${tests_dir}/*.bats) | \
 	grep -v "^test-template.bats" | \
 	xargs -L 1 -i bash -c ".${tests_dir}/bats/bin/bats {}"
