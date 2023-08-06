@@ -7,8 +7,7 @@ if [ `git rev-parse --verify "$receiving" 2>/dev/null` ]; then
    git checkout "$receiving"
    git merge "$curr"
    if [ $? = 0 ]; then
-      git checkout "$curr"
-      git reset --keep HEAD~"$2"
+      git checkout "$curr" && git reset --keep HEAD~"$2"
    fi
 else
    git branch "$receiving"
