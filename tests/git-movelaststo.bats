@@ -5,7 +5,7 @@ load test-template.bats
 
 other_branch=other
 
-@test "undo last 2 commits to a new branch" {
+@test "move last 2 commits to a new branch" {
         head_initial=$(git rev-parse HEAD)
         git commit -m "first commit to move" --allow-empty
         git commit -m "second commit to move" --allow-empty
@@ -20,7 +20,7 @@ other_branch=other
         assert [ ${last_commit_ok} -eq 1 ]
 }
 
-@test "undo last 2 commits to an existing branch" {
+@test "move last 2 commits to an existing branch" {
 		curr_branch=$(git rev-parse --abbrev-ref HEAD)
         head_initial=$(git rev-parse HEAD)
 		git checkout -b ${other_branch}
