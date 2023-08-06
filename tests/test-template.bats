@@ -1,7 +1,8 @@
 #!/usr/bin/env bats
 
+curr_dir="$(pwd)"
 root_dir="$(git rev-parse --show-toplevel)"
-test_repo="${root_dir}/test-repo"
+test_repo="/tmp/$(basename ${root_dir})/test-repo"
 
 # Run before each test; this function must be unique and all tests should source this file
 setup() {
@@ -17,4 +18,10 @@ setup() {
 	# Load std test utils
 	load 'test_helper/bats-support/load'
     load 'test_helper/bats-assert/load'
+}
+
+# Run after each test; this function must be unique and all tests should source this file
+teardown() {
+	cd ${curr_dir}
+    rm -r ${test_repo}
 }
