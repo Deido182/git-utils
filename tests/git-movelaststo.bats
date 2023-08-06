@@ -63,8 +63,8 @@ other_branch=other
 		git checkout ${curr_branch}
 		git movelaststo ${other_branch} 1
 		# Automatic merge failed
-		still_on_other_branch=$([[ $(git rev-parse --abbrev-ref HEAD) -eq ${other_branch} ]] && echo 1 || echo 0)
+		still_on_other_branch=$([[ $(git rev-parse --abbrev-ref HEAD) == ${other_branch} ]] && echo 1 || echo 0)
 		assert [ ${still_on_other_branch} -eq 1 ]
-		curr_branch_not_changed=$([[ $(git rev-parse ${curr_branch}) -eq ${commit} ]] && echo 1 || echo 0)
+		curr_branch_not_changed=$([[ $(git rev-parse ${curr_branch}) == ${commit} ]] && echo 1 || echo 0)
 		assert [ ${curr_branch_not_changed} -eq 1 ]
 }
