@@ -36,9 +36,7 @@ setup() {
     create_repo ${mocked_remote}
     # Add mocked remote
     cd ${test_repo}
-    git config remote.origin.url "${mocked_remote}/.git"
-    git config branch.master.remote origin
-    cd ${curr_dir}
+    git remote add origin "file://${mocked_remote}/.git"
 	
 	# Load std test utils
 	load 'test_helper/bats-support/load'
