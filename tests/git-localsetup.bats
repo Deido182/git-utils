@@ -3,7 +3,7 @@
 # The bats version of 'source'
 load test-template.bats
 
-@test "update remote develop" {
+@test "save some mods and then restore them" {
 	git branch develop
 	echo "proper content 1" > file1
 	echo "proper content 2" > file2
