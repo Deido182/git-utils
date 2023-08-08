@@ -1,0 +1,11 @@
+#!/bin/bash
+
+root_dir="$(git rev-parse --show-toplevel)"
+tests_dir="${root_dir}/tests"
+
+git submodule add https://github.com/bats-core/bats-core.git ${tests_dir}/bats > /dev/null 2>&1
+git submodule add https://github.com/bats-core/bats-support.git ${tests_dir}/test_helper/bats-support > /dev/null 2>&1
+git submodule add https://github.com/bats-core/bats-assert.git ${tests_dir}/test_helper/bats-assert > /dev/null 2>&1
+git submodule update --init > /dev/null 2>&1
+
+${tests_dir}/bats/bin/bats ${tests_dir}
