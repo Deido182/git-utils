@@ -21,8 +21,9 @@ load test-template.bats
 	git push -u origin ${release}
 	git checkout -b other
 	git commit -m "commit to push" --allow-empty
-	git updatetest 1.0.0
-	assert [ $? -ne 0 ]
+	# To prevent it from stopping the test on failure
+	run ! git updatetest 1.0.0
+	assert_failure
 	diff_head=$([[ $(git rev-parse other) != $(git rev-parse origin/${release}) ]] && echo 1 || echo 0)
     assert [ ${diff_head} -eq 1 ]
     still_on_other=$([[ $(git rev-parse --abbrev-ref HEAD) == other ]] && echo 1 || echo 0)
@@ -39,8 +40,9 @@ load test-template.bats
 	git push -u origin ${greater_release}
 	git checkout -b ${feature}
 	git commit -m "commit to push" --allow-empty
-	git updatetest 1.0.0
-	assert [ $? -ne 0 ]
+	# To prevent it from stopping the test on failure
+	run ! git updatetest 1.0.0
+	assert_failure
 	diff_head=$([[ $(git rev-parse ${feature}) != $(git rev-parse origin/${release}) ]] && echo 1 || echo 0)
     assert [ ${diff_head} -eq 1 ]
     still_on_feature=$([[ $(git rev-parse --abbrev-ref HEAD) == ${feature} ]] && echo 1 || echo 0)
