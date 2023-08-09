@@ -10,7 +10,7 @@ load test-template.bats
 		old_matches=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "${penultimate_message}" ]] && echo 1 || echo 0)
 		assert [ ${old_matches} -eq 1 ]
 		new_message="New message"
-		git changemessage HEAD^ ${new_message}
+		git changemessage HEAD^ "${new_message}"
 		new_matches=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "${new_message}" ]] && echo 1 || echo 0)
 		assert [ ${new_matches} -eq 1 ]
 }
