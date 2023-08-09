@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export updatemessage_new_message="$2"
-export updatemessage_desired_ref=$(git rev-parse $1)
-git rebase --keep-empty --rebase-merges ${updatemessage_desired_ref}^ \
-	--exec 'if [ $(git rev-parse HEAD) = ${updatemessage_desired_ref} ]; then git commit --amend --allow-empty --no-edit -m "${updatemessage_new_message}"; fi'
+new_message="$2"
+desired_ref=$(git rev-parse $1)
+git rebase --keep-empty --rebase-merges ${desired_ref}^ \
+	--exec 'if [ $(git rev-parse HEAD) = '${desired_ref}' ]; then git commit --amend --allow-empty --no-edit -m '"\"${new_message}\""'; fi'
