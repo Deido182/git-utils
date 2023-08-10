@@ -1,0 +1,1 @@
+Given the reference ```ref``` of a commit <b>on the current branch</b>, ```git changemessage [ref] [new-message]``` replaces its message with ```new-message```. The whole list of commits with their ```refs``` can be retrieved by ```git log```. Otherwise, you can directly use ```HEAD~[n]``` as well (where ```HEAD~1``` is the penultimate commit).
