@@ -15,6 +15,38 @@ load test-template.bats
     assert [ ${same_head} -eq 1 ]
 }
 
+@test "update remote release/1.0.0 even with other commits in between" {
+	release=release/1.0.0
+	git branch ${release}
+	git push -u origin ${release}
+	# feature/1 updates release/1.0.0
+	git checkout -b feature/1
+	echo "file1" > file1
+	git add --all
+	git commit -m "commit on feature/1 adding file1"
+	git updatetest 1.0.0
+	# Back to master
+	git checkout master
+	# feature/2 updates release/1.0.0
+	git checkout -b feature/2
+	echo "file2" > file2
+	git add --all
+	git commit -m "commit on feature/2 adding file2"
+	git updatetest 1.0.0
+	# feature/1 updates release/1.0.0 again
+	git checkout feature/1
+	echo "new content file1" > file1
+	git add --all
+	git commit -m "commit on feature/1 modifies file1"
+	git updatetest 1.0.0
+	back_on_feature_1=$([[ $(git rev-parse --abbrev-ref HEAD) == feature/1 ]] && echo 1 || echo 0)
+	assert [ ${back_on_feature_1} -eq 1 ]
+	or_contains_f=$([[ ! -z "$(git branch -r --contains feature/1 | grep '^\s*origin/'"${release}"'$')" ]] && echo 1 || echo 0)
+    assert [ ${or_contains_f} -eq 1 ]
+	same_head_r_or=$([[ $(git rev-parse ${release}) == $(git rev-parse origin/${release}) ]] && echo 1 || echo 0)
+    assert [ ${same_head_r_or} -eq 1 ]
+}
+
 @test "fail updating remote release/1.0.0 from a not-feature branch" {
 	release=release/1.0.0
 	git branch ${release}
