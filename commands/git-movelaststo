@@ -5,14 +5,12 @@ receiving="$1"
 if [ `git rev-parse --verify "$receiving" 2>/dev/null` ]; then
    # The branch already exists
    git checkout "$receiving"
+else
+   git checkout -b "$receiving"
+fi
+if [ $? = 0 ]; then
    git merge "$curr"
    if [ $? = 0 ]; then
-      git checkout "$curr"
-      git reset --keep HEAD~"$2"
+      git checkout "$curr" && git reset --keep HEAD~"$2"
    fi
-else
-   git branch "$receiving"
-   git reset --keep HEAD~"$2"
-   git checkout "$receiving"
-   git checkout "$curr"
 fi
