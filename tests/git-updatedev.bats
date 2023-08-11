@@ -12,6 +12,37 @@ load test-template.bats
     assert [ ${same_head} -eq 1 ]
 }
 
+@test "update remote develop even with other commits in between" {
+	git branch develop
+	git push -u origin develop
+	# feature/1 updates develop
+	git checkout -b feature/1
+	echo "file1" > file1
+	git add --all
+	git commit -m "commit on feature/1 adding file1"
+	git updatedev
+	# Back to master
+	git checkout master
+	# feature/2 updates develop
+	git checkout -b feature/2
+	echo "file2" > file2
+	git add --all
+	git commit -m "commit on feature/2 adding file2"
+	git updatedev
+	# feature/1 updates develop again
+	git checkout feature/1
+	echo "new content file1" > file1
+	git add --all
+	git commit -m "commit on feature/1 modifies file1"
+	git updatedev
+	back_on_feature_1=$([[ $(git rev-parse --abbrev-ref HEAD) == feature/1 ]] && echo 1 || echo 0)
+	assert [ ${back_on_feature_1} -eq 1 ]
+	od_contains_f=$([[ ! -z "$(git branch -r --contains feature/1 | grep '^\s*origin/develop$')" ]] && echo 1 || echo 0)
+    assert [ ${od_contains_f} -eq 1 ]
+	same_head_d_od=$([[ $(git rev-parse develop) == $(git rev-parse origin/develop) ]] && echo 1 || echo 0)
+    assert [ ${same_head_d_od} -eq 1 ]
+}
+
 @test "fail updating remote develop due to merge conflicts" {
 	git branch develop
 	git push -u origin develop
