@@ -80,3 +80,19 @@ load test-template.bats
     still_on_feature=$([[ $(git rev-parse --abbrev-ref HEAD) == ${feature} ]] && echo 1 || echo 0)
     assert [ ${still_on_feature} -eq 1 ]
 }
+
+@test "update remote release/1.0.1 from a feature" {
+	release=release/1.0.0
+	greater_release=release/1.0.1
+	feature=feature/x
+	git branch ${release}
+	git push -u origin ${release}
+	git branch ${greater_release}
+	git push -u origin ${greater_release}
+	git checkout -b ${feature}
+	git commit -m "commit to push" --allow-empty
+	# To prevent it from stopping the test on failure
+	git updatetest 1.0.1
+	same_head=$([[ $(git rev-parse ${feature}) == $(git rev-parse origin/${greater_release}) ]] && echo 1 || echo 0)
+    assert [ ${same_head} -eq 1 ]
+}
