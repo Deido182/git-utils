@@ -9,6 +9,7 @@ curr_dir="$(pwd)"
 root_dir="$(git rev-parse --show-toplevel)"
 test_repo="/tmp/$(basename ${root_dir})/test-repo"
 mocked_remote="/tmp/$(basename ${root_dir})/mocked-remote"
+installed_commands_basename=installed-commands
 
 remove_repo() {
 	if [ -d "$1" ]; then
@@ -30,6 +31,10 @@ setup() {
     DIR="$( cd "$( dirname "$BATS_TEST_FILENAME" )" >/dev/null 2>&1 && pwd )"
     # Make executables in commands/ visible to PATH
     PATH="$DIR/../commands:$PATH"
+    # To hide the installed ones (that are not the ones to be tested)
+    if [[ -d "${root_dir}/${installed_commands_basename}" ]]; then
+		mv "${root_dir}/${installed_commands_basename}" "${root_dir}/.${installed_commands_basename}"
+    fi
     
     # Setup new test-repo
     create_repo ${test_repo}
@@ -48,4 +53,7 @@ teardown() {
 	cd ${curr_dir}
     remove_repo ${test_repo}
     remove_repo ${mocked_remote}
+    if [[ -d "${root_dir}/.${installed_commands_basename}" ]]; then
+		mv "${root_dir}/.${installed_commands_basename}" "${root_dir}/${installed_commands_basename}"
+	fi
 }
