@@ -1,0 +1,10 @@
+#!/bin/bash
+
+curr=$(git rev-parse --abbrev-ref HEAD)
+git checkout $1
+git pull
+git merge $curr
+if [ $? = 0 ]; then
+  git push
+  git checkout $curr
+fi
