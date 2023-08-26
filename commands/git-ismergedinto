@@ -9,7 +9,7 @@ done
 
 dest="$1"
 
-git branch --all --merged | \
+git branch --all --contains "${source}" | \
 	sed -r 's/\**\s*(remotes\/)*+//g' | \
-	grep '^'"${source}"'$' > /dev/null 2>&1 \
+	grep '^'"${dest}"'$' > /dev/null 2>&1 \
 	&& echo true || echo false
