@@ -11,4 +11,4 @@ if [[ "${lastv}" != "$1" ]]; then
   echo "ERROR: possibly updating the wrong release (last on remote: ${lastv} != $1)"
   exit 1
 fi
-./"$(pwd)"/git-update "${rel}"
+git update "${rel}"
