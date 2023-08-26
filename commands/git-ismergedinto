@@ -1,0 +1,15 @@
+#!/bin/bash
+
+source=$(git rev-parse --abbrev-ref HEAD)
+while getopts "b:" opt; do
+    case "${opt}" in
+        b) source="${OPTARG}"; shift 2;;
+    esac
+done
+
+dest="$1"
+
+git branch --all --merged | \
+	sed -r 's/\**\s*(remotes\/)*+//g' | \
+	grep '^'"${source}"'$' > /dev/null 2>&1 \
+	&& echo true || echo false
