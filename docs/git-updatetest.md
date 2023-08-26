@@ -1,2 +1,2 @@
-```git updatetest [version]``` updates the branch ```release/[version]``` (```remote```, as well) with the current branch (assuming the current one is a ```feature```; otherwise it does nothing).<br>
-Moreover, it exits when trying to update an <i>old</i> version, that is, when trying to update ```release/[v1]``` with ```release/[v2]``` ( ```v1``` < ```v2``` ) present on ```remote```.
+```git updatetest <version>``` updates the branch ```release/<version>``` (```remote```, as well) with the current branch (assuming the current one is a ```feature```; otherwise it does nothing).<br>
+Moreover, it exits when trying to update an <i>old</i> version, that is, when trying to update ```release/<v1>``` with ```release/<v2>``` ( ```v1``` < ```v2``` ) present on ```remote```.
