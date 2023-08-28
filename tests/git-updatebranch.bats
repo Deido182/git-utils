@@ -7,7 +7,7 @@ load test-template.bats
 	git branch custom
 	git push -u origin custom
 	git commit -m "commit to push" --allow-empty
-	git update custom
+	git updatebranch custom
 	same_head=$([[ $(git rev-parse custom) == $(git rev-parse origin/custom) ]] && echo 1 || echo 0)
     assert [ ${same_head} -eq 1 ]
 }
@@ -20,7 +20,7 @@ load test-template.bats
 	echo "file1" > file1
 	git add --all
 	git commit -m "commit on feature/1 adding file1"
-	git update custom
+	git updatebranch custom
 	# Back to master
 	git checkout master
 	# feature/2 updates custom
@@ -28,13 +28,13 @@ load test-template.bats
 	echo "file2" > file2
 	git add --all
 	git commit -m "commit on feature/2 adding file2"
-	git update custom
+	git updatebranch custom
 	# feature/1 updates custom again
 	git checkout feature/1
 	echo "new content file1" > file1
 	git add --all
 	git commit -m "commit on feature/1 modifies file1"
-	git update custom
+	git updatebranch custom
 	back_on_feature_1=$([[ $(git rev-parse --abbrev-ref HEAD) == feature/1 ]] && echo 1 || echo 0)
 	assert [ ${back_on_feature_1} -eq 1 ]
 	od_contains_f=$([[ ! -z "$(git branch -r --contains feature/1 | grep '^\s*origin/custom$')" ]] && echo 1 || echo 0)
@@ -50,7 +50,7 @@ load test-template.bats
 	echo "first content" > file
 	git add --all
 	git commit -m "commit on other adding file"
-	git update custom
+	git updatebranch custom
 	# First time ok
 	same_head=$([[ $(git rev-parse other) == $(git rev-parse origin/custom) ]] && echo 1 || echo 0)
     assert [ ${same_head} -eq 1 ]
@@ -65,7 +65,7 @@ load test-template.bats
     echo "third content" > file
     git add --all
     git commit -m "commit on other altering file again"
-    git update custom
+    git updatebranch custom
     # Second time fails
     diff_head=$([[ $(git rev-parse other) != $(git rev-parse origin/custom) ]] && echo 1 || echo 0)
     assert [ ${diff_head} -eq 1 ]
