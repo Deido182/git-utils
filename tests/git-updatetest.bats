@@ -81,6 +81,31 @@ load test-template.bats
     assert [ ${still_on_feature} -eq 1 ]
 }
 
+@test "forcibly update remote release/1.0.0, even if release/1.0.1 exists" {
+	release=release/1.0.0
+	greater_release=release/1.0.1
+	feature=feature/x
+	git branch ${release}
+	git push -u origin ${release}
+	git branch ${greater_release}
+	git push -u origin ${greater_release}
+	git checkout -b ${feature}
+	git commit -m "commit to push" --allow-empty
+	# To prevent it from stopping the test on failure
+	run git updatetest 1.0.0
+	assert_failure
+	# To prevent it from stopping the test on failure
+	run git updatetest 1.0.0 -f
+	assert_failure
+	git updatetest -f 1.0.0
+	back_on_feature_1=$([[ $(git rev-parse --abbrev-ref HEAD) == feature/x ]] && echo 1 || echo 0)
+	assert [ ${back_on_feature_1} -eq 1 ]
+	or_contains_f=$([[ ! -z "$(git branch -r --contains feature/x | grep '^\s*origin/'"${release}"'$')" ]] && echo 1 || echo 0)
+    assert [ ${or_contains_f} -eq 1 ]
+	same_head_r_or=$([[ $(git rev-parse ${release}) == $(git rev-parse origin/${release}) ]] && echo 1 || echo 0)
+    assert [ ${same_head_r_or} -eq 1 ]
+}
+
 @test "update remote release/1.0.1 from a feature" {
 	release=release/1.0.0
 	greater_release=release/1.0.1
