@@ -38,10 +38,13 @@ setup() {
     
     # Setup new test-repo
     create_repo ${test_repo}
-    create_repo ${mocked_remote}
     # Add mocked remote
+    create_repo ${mocked_remote}
+    cd ${mocked_remote}
+    git config receive.denyCurrentBranch ignore
     cd ${test_repo}
     git remote add origin "file://${mocked_remote}/.git"
+    git push --force -u origin master
 	
 	# Load std test utils
 	load 'test_helper/bats-support/load'
