@@ -81,6 +81,31 @@ load test-template.bats
     assert [ ${still_on_feature} -eq 1 ]
 }
 
+@test "forcibly update remote release/1.0.0, even if release/1.0.1 exists" {
+	release=release/1.0.0
+	greater_release=release/1.0.1
+	feature=feature/x
+	git branch ${release}
+	git push -u origin ${release}
+	git branch ${greater_release}
+	git push -u origin ${greater_release}
+	git checkout -b ${feature}
+	git commit -m "commit to push" --allow-empty
+	# To prevent it from stopping the test on failure
+	run git updatetest 1.0.0
+	assert_failure
+	# To prevent it from stopping the test on failure
+	run git updatetest 1.0.0 -f
+	assert_failure
+	git updatetest -f 1.0.0
+	back_on_feature_1=$([[ $(git rev-parse --abbrev-ref HEAD) == feature/x ]] && echo 1 || echo 0)
+	assert [ ${back_on_feature_1} -eq 1 ]
+	or_contains_f=$([[ ! -z "$(git branch -r --contains feature/x | grep '^\s*origin/'"${release}"'$')" ]] && echo 1 || echo 0)
+    assert [ ${or_contains_f} -eq 1 ]
+	same_head_r_or=$([[ $(git rev-parse ${release}) == $(git rev-parse origin/${release}) ]] && echo 1 || echo 0)
+    assert [ ${same_head_r_or} -eq 1 ]
+}
+
 @test "update remote release/1.0.1 from a feature" {
 	release=release/1.0.0
 	greater_release=release/1.0.1
@@ -95,4 +120,77 @@ load test-template.bats
 	git updatetest 1.0.1
 	same_head=$([[ $(git rev-parse ${feature}) == $(git rev-parse origin/${greater_release}) ]] && echo 1 || echo 0)
     assert [ ${same_head} -eq 1 ]
+}
+
+@test "fail updating remote release/1.0.1 due to tag 1.0.1" {
+	release=release/1.0.1
+	feature=feature/x
+	git branch ${release}
+	git push -u origin ${release}
+	git checkout -b ${feature}
+	git commit -m "commit to push" --allow-empty
+	git tag 1.0.1
+	git push origin --tags
+	# To prevent it from stopping the test on failure
+	run git updatetest 1.0.1
+	assert_failure
+	diff_head=$([[ $(git rev-parse ${feature}) != $(git rev-parse origin/${release}) ]] && echo 1 || echo 0)
+    assert [ ${diff_head} -eq 1 ]
+    still_on_feature=$([[ $(git rev-parse --abbrev-ref HEAD) == ${feature} ]] && echo 1 || echo 0)
+    assert [ ${still_on_feature} -eq 1 ]
+}
+
+@test "update the last release" {
+	release=release/1.0.0
+	greater_release=release/1.0.1
+	feature=feature/x
+	git branch ${release}
+	git push -u origin ${release}
+	git branch ${greater_release}
+	git push -u origin ${greater_release}
+	git checkout -b ${feature}
+	git commit -m "commit to push" --allow-empty
+	# To prevent it from stopping the test on failure
+	git updatetest -l
+    same_head=$([[ $(git rev-parse ${feature}) == $(git rev-parse origin/${greater_release}) ]] && echo 1 || echo 0)
+    assert [ ${same_head} -eq 1 ]
+    still_on_feature=$([[ $(git rev-parse --abbrev-ref HEAD) == ${feature} ]] && echo 1 || echo 0)
+    assert [ ${still_on_feature} -eq 1 ]
+}
+
+@test "fail updating the last release due to extra parameter" {
+	release=release/1.0.0
+	greater_release=release/1.0.1
+	feature=feature/x
+	git branch ${release}
+	git push -u origin ${release}
+	git branch ${greater_release}
+	git push -u origin ${greater_release}
+	git checkout -b ${feature}
+	git commit -m "commit to push" --allow-empty
+	# To prevent it from stopping the test on failure
+	run git updatetest -l 1.0.0
+	assert_failure
+	diff_head=$([[ $(git rev-parse ${feature}) != $(git rev-parse origin/${release}) ]] && echo 1 || echo 0)
+    assert [ ${diff_head} -eq 1 ]
+    diff_head=$([[ $(git rev-parse ${feature}) != $(git rev-parse origin/${greater_release}) ]] && echo 1 || echo 0)
+    assert [ ${diff_head} -eq 1 ]
+    still_on_feature=$([[ $(git rev-parse --abbrev-ref HEAD) == ${feature} ]] && echo 1 || echo 0)
+    assert [ ${still_on_feature} -eq 1 ]
+}
+
+@test "forcibly update remote release/1.0.1, even if tag 1.0.1 exists" {
+	release=release/1.0.1
+	feature=feature/x
+	git branch ${release}
+	git push -u origin ${release}
+	git checkout -b ${feature}
+	git commit -m "commit to push" --allow-empty
+	git tag 1.0.1
+	git push origin --tags
+	git updatetest -f -l
+	same_head=$([[ $(git rev-parse ${feature}) == $(git rev-parse origin/${release}) ]] && echo 1 || echo 0)
+    assert [ ${same_head} -eq 1 ]
+    still_on_feature=$([[ $(git rev-parse --abbrev-ref HEAD) == ${feature} ]] && echo 1 || echo 0)
+    assert [ ${still_on_feature} -eq 1 ]
 }

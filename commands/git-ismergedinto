@@ -1,15 +1,32 @@
 #!/bin/bash
 
 source=$(git rev-parse --abbrev-ref HEAD)
-while getopts "b:" opt; do
+list_all=false
+while getopts "b:l" opt; do
     case "${opt}" in
-        b) source="${OPTARG}"; shift 2;;
+        b) source="${OPTARG}";;
+        l) list_all=true;;
     esac
 done
+shift $((OPTIND - 1))
 
-dest="$1"
+get_all_containing_source() {
+	git branch --all --contains "${source}" | \
+		sed -r 's/\**\s*(remotes\/)*+//g'
+}
 
-git branch --all --contains "${source}" | \
-	sed -r 's/\**\s*(remotes\/)*+//g' | \
-	grep '^'"${dest}"'$' > /dev/null 2>&1 \
-	&& echo true || echo false
+if [[ "${list_all}" == "true" ]] && [ ! -z "$1" ]; then
+	echo "ERROR: both receiving branch and 'list_all=true' present"
+	exit 1
+elif [[ "${list_all}" == "true" ]]; then
+	get_all_containing_source
+elif [ -z "$1" ]; then
+	echo "ERROR: missing receiving branch"
+	exit 1
+else
+	dest="$1"
+
+	get_all_containing_source | \
+		grep '^'"${dest}"'$' > /dev/null 2>&1 \
+		&& echo true || echo false
+fi
