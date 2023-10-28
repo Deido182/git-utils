@@ -9,7 +9,11 @@ else
    git checkout -b "$receiving"
 fi
 if [ $? = 0 ]; then
-   git merge "$curr"
+   git cherry-pick \
+		--allow-empty \
+		--allow-empty-message \
+		--keep-redundant-commits \
+		"$curr"~"$2".."$curr"
    if [ $? = 0 ]; then
       git checkout "$curr" && git reset --keep HEAD~"$2"
    fi
