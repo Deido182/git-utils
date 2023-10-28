@@ -21,6 +21,7 @@ other_branch=other
     contains_second=$(git branch --contains ${second_commit} | grep "${other_branch}" | wc -l)
     contains_both=$([[ ${contains_first} == 1 ]] && [[ ${contains_second} == 1 ]] && echo 1 || echo 0)
     assert [ ${contains_both} -eq 1 ]
+	assert [ ${head_initial} == $(git rev-parse ${other_branch}^^) ]
 }
 
 @test "move last 2 commits to an existing branch" {
@@ -75,6 +76,7 @@ other_branch=other
 	echo content > other_test_file
 	git add --all
 	git commit -m "commit other branch"
+	init_other_branch=$(git rev-parse HEAD)
 	git checkout ${curr_branch}
     branch_exists=$([[ ! -z "$(git branch --list ${other_branch})" ]] && echo 1 || echo 0)
     assert [ ${branch_exists} -eq 1 ]
@@ -90,6 +92,7 @@ other_branch=other
     second_commit=$(git rev-parse HEAD)
     git movelaststo ${other_branch} 2
 	assert [ ${commit_to_keep} == $(git rev-parse HEAD) ]
+	assert [ ${init_other_branch} == $(git rev-parse ${other_branch}^^) ]
     same=$([[ "$(git log --format=%B -n 1 ${other_branch})" == "$(git log --format=%B -n 1 ${second_commit})" ]] && echo 1 || echo 0)
     assert [ ${same} -eq 1 ]
     same=$([[ "$(git log --format=%B -n 1 ${other_branch}^)" == "$(git log --format=%B -n 1 ${first_commit})" ]] && echo 1 || echo 0)
