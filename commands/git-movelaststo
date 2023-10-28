@@ -4,14 +4,12 @@ curr=$(git rev-parse --abbrev-ref HEAD)
 receiving="$1"
 if [ `git rev-parse --verify "$receiving" 2>/dev/null` ]; then
    # The branch already exists
-   git checkout "$receiving"
-   if [ $? = 0 ]; then
-      git cherry-pick \
+   git checkout "$receiving" && \
+   git cherry-pick \
    		--allow-empty \
    		--allow-empty-message \
    		--keep-redundant-commits \
    		"$curr"~"$2".."$curr"
-   fi
 else
    git checkout -b "$receiving"
 fi
