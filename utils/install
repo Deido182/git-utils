@@ -16,11 +16,11 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
-rm -r ${installed_commands_dir} 2> /dev/null
-mkdir ${installed_commands_dir} 2> /dev/null && \
-	git checkout ${ref} && \
-	find ${commands_dir}/git-* -type f 2> /dev/null | \
-	xargs -L 1 -i bash -c 'basename {}' | \
-	xargs -L 1 -i bash -c "cp --force ${commands_dir}/{} ${installed_commands_dir} 2> /dev/null && \
+rm -r ${installed_commands_dir} 2>/dev/null
+mkdir ${installed_commands_dir} 2>/dev/null &&
+	git checkout ${ref} &&
+	find ${commands_dir}/git-* -type f 2>/dev/null |
+	xargs -L 1 -i bash -c 'basename {}' |
+		xargs -L 1 -i bash -c "cp --force ${commands_dir}/{} ${installed_commands_dir} 2> /dev/null && \
 						   chmod 755 ${installed_commands_dir}/{}"
 git checkout ${curr}
