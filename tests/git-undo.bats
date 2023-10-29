@@ -5,10 +5,10 @@ load test-template.bats
 
 @test "undo last 2 commits" {
 	head_before=$(git rev-parse HEAD)
-	echo test > test_file
+	echo test >test_file
 	git add --all
 	git commit -m "message 1"
-	git commit -m "message 2" --allow-empty 
+	git commit -m "message 2" --allow-empty
 	head_after=$(git rev-parse HEAD)
 	diff_head=$([[ ${head_before} != ${head_after} ]] && echo 1 || echo 0)
 	assert [ ${diff_head} -eq 1 ]

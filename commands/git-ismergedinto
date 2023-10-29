@@ -3,15 +3,15 @@
 source=$(git rev-parse --abbrev-ref HEAD)
 list_all=false
 while getopts "b:l" opt; do
-    case "${opt}" in
-        b) source="${OPTARG}";;
-        l) list_all=true;;
-    esac
+	case "${opt}" in
+	b) source="${OPTARG}" ;;
+	l) list_all=true ;;
+	esac
 done
 shift $((OPTIND - 1))
 
 get_all_containing_source() {
-	git branch --all --contains "${source}" | \
+	git branch --all --contains "${source}" |
 		sed -r 's/\**\s*(remotes\/)*+//g'
 }
 
@@ -26,7 +26,7 @@ elif [ -z "$1" ]; then
 else
 	dest="$1"
 
-	get_all_containing_source | \
-		grep '^'"${dest}"'$' > /dev/null 2>&1 \
-		&& echo true || echo false
+	get_all_containing_source |
+		grep '^'"${dest}"'$' >/dev/null 2>&1 &&
+		echo true || echo false
 fi
