@@ -3,10 +3,10 @@
 force=false
 latest=false
 while getopts ":fl" opt; do
-    case "${opt}" in
-        f) force=true;;
-        l) latest=true;;
-    esac
+  case "${opt}" in
+  f) force=true ;;
+  l) latest=true ;;
+  esac
 done
 shift $((OPTIND - 1))
 
@@ -26,15 +26,15 @@ lastv="$(git branch -r --ignore-case | grep release | tail -n 1 | sed -r 's/.*re
 rel="release/${version}"
 
 if [[ "${force}" != true ]]; then
-	if [[ "${lastv}" != "${version}" ]]; then
-	  echo "ERROR: possibly updating the wrong release (last on remote: ${lastv} != ${version})"
-	  exit 1
-	fi
+  if [[ "${lastv}" != "${version}" ]]; then
+    echo "ERROR: possibly updating the wrong release (last on remote: ${lastv} != ${version})"
+    exit 1
+  fi
 
-	if [ ! -z "$(git ls-remote --tags origin | grep /v*${version}$)" ]; then
-		echo "ERROR: the tag '${version}' already exists; create a new release"
-		exit 1
-	fi
+  if [ ! -z "$(git ls-remote --tags origin | grep /v*${version}$)" ]; then
+    echo "ERROR: the tag '${version}' already exists; create a new release"
+    exit 1
+  fi
 fi
 
 git updatebranch "${rel}"
