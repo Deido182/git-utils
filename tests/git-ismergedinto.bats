@@ -4,15 +4,15 @@
 load test-template.bats
 
 @test "assert that current branch is merged into origin/develop" {
-	git branch develop
-	git push -u origin develop
-	git checkout -b feature
-	is_merged=$([[ $(git ismergedinto develop) == true ]] && echo 1 || echo 0)
+    git branch develop
+    git push -u origin develop
+    git checkout -b feature
+    is_merged=$([[ $(git ismergedinto develop) == true ]] && echo 1 || echo 0)
     assert [ ${is_merged} -eq 1 ]
-    echo test > file
+    echo test >file
     git add --all
-	git commit -m "commit"
-	is_merged=$([[ $(git ismergedinto develop) == true ]] && echo 1 || echo 0)
+    git commit -m "commit"
+    is_merged=$([[ $(git ismergedinto develop) == true ]] && echo 1 || echo 0)
     assert [ ${is_merged} -eq 0 ]
     git checkout develop
     git merge feature
@@ -26,13 +26,13 @@ load test-template.bats
 }
 
 @test "assert that feature branch is merged into develop" {
-	git branch develop
-	git checkout -b feature
-    echo test > file
+    git branch develop
+    git checkout -b feature
+    echo test >file
     git add --all
-	git commit -m "commit"
-	git checkout -b other
-	is_merged=$([[ $(git ismergedinto -b feature develop) == true ]] && echo 1 || echo 0)
+    git commit -m "commit"
+    git checkout -b other
+    is_merged=$([[ $(git ismergedinto -b feature develop) == true ]] && echo 1 || echo 0)
     assert [ ${is_merged} -eq 0 ]
     git checkout develop
     git merge feature
@@ -47,14 +47,14 @@ load test-template.bats
 }
 
 @test "list all branches feature is merged into" {
-	git branch develop
-	git branch other
-	git checkout -b feature
-    echo test > file
+    git branch develop
+    git branch other
+    git checkout -b feature
+    echo test >file
     git add --all
-	git commit -m "commit"
-	git checkout other
-	just_one=$([[ "$(git ismergedinto -lb feature)" == "feature" ]] && echo 1 || echo 0)
+    git commit -m "commit"
+    git checkout other
+    just_one=$([[ "$(git ismergedinto -lb feature)" == "feature" ]] && echo 1 || echo 0)
     assert [ ${just_one} -eq 1 ]
     git checkout develop
     git merge feature
@@ -67,25 +67,25 @@ load test-template.bats
 }
 
 @test "fail listing all branches feature is merged into" {
-	git branch develop
-	git checkout -b feature
-    echo test > file
+    git branch develop
+    git checkout -b feature
+    echo test >file
     git add --all
-	git commit -m "commit"
-	git checkout develop
+    git commit -m "commit"
+    git checkout develop
     git merge feature
-	run git ismergedinto -l develop
-	assert_failure
+    run git ismergedinto -l develop
+    assert_failure
 }
 
 @test "fail for missing parameter" {
-	git branch develop
-	git checkout -b feature
-    echo test > file
+    git branch develop
+    git checkout -b feature
+    echo test >file
     git add --all
-	git commit -m "commit"
-	git checkout develop
+    git commit -m "commit"
+    git checkout develop
     git merge feature
-	run git ismergedinto
-	assert_failure
+    run git ismergedinto
+    assert_failure
 }
