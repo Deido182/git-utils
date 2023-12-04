@@ -21,7 +21,7 @@ if [[ "$curr" != *"feature/"* ]]; then
   exit 1
 fi
 
-lastv="$(git branch -r --ignore-case | grep release | tail -n 1 | sed -r 's/.*release\/+//g')"
+lastv="$(git branch -r --ignore-case | grep release | tail -n 1 | sed 's|.*release/||g')"
 [[ ${latest} == true ]] && version="${lastv}" || version="$1"
 rel="release/${version}"
 
