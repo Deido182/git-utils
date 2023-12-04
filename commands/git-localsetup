@@ -9,7 +9,7 @@ if [[ "${command}" == "use" ]]; then
                 echo "Local setup for '${env}' not found"
                 exit 1
         fi
-        index="$(echo "${stash}" | sed -r 's/(stash@\{|\}.*)+//g')"
+        index="$(echo "${stash}" | sed 's/^stash@{//g' | sed 's/}.*$//g')"
         git stash apply --index ${index}
 elif [[ "${command}" == "save" ]]; then
         git stash push --include-untracked -m "${message}"
