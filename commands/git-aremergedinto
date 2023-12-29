@@ -1,0 +1,46 @@
+#!/bin/bash
+
+features=()
+urls=()
+while getopts "n:u:" opt; do
+	case "${opt}" in
+	n) features+=("feature/${OPTARG}") ;;
+	u) urls+=("${OPTARG}") ;;
+	esac
+done
+shift $((OPTIND - 1))
+
+into="$1"
+
+. "$(git rev-parse --show-toplevel)/utils/common-functions-and-constants"
+
+print_does_not_exist() {
+	echo "'$1' does not exist in '$2'"
+}
+
+i=0
+curr_dir="$(pwd)"
+repo="${tmp_dir}/aremergedinto-repo"
+create_repo "${repo}"
+cd "${repo}"
+for url in ${urls}; do
+	origin="origin-$((i++))"
+	git remote add "${origin}" "${url}"
+	git pull "${origin}" "${into}"
+	if [ $? -ne 0 ]; then
+		print_does_not_exist "${into}" "${url}"
+		continue
+	fi
+	for feature in ${features}; do
+		git pull "${origin}" "${feature}"
+		if [ $? -ne 0 ]; then
+			print_does_not_exist "${feature}" "${url}"
+			continue
+		fi
+		ans=$(git ismergedinto -b "${origin}/${feature}" "${origin}/${into}")
+		echo "'${url}': is '${feature}' merged into '${into}'? ${ans}"
+	done
+	git remote remove "${origin}"
+done
+cd "${curr_dir}"
+remove_repo "${repo}"
