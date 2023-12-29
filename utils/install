@@ -1,5 +1,4 @@
-#!/bin/bash -i
-# Run as 'interactive' so as to being able to source ~/.bashrc
+#!/bin/bash
 
 root_dir="$(git rev-parse --show-toplevel)"
 commands_dir="${root_dir}/commands"
