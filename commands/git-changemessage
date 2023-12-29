@@ -1,10 +1,12 @@
 #!/bin/bash
 
-while getopts "m:r:w:" opt; do
+while getopts "m:r:w:p:" opt; do
   case "${opt}" in
   m) export new_message="${OPTARG}" ;;
   r) export replace="${OPTARG}" ;; # As basic regex
   w) export with="${OPTARG}" ;;
+  p) export replace="^"
+     export with="${OPTARG}" ;;
   esac
 done
 shift $((OPTIND - 1))
@@ -12,14 +14,14 @@ shift $((OPTIND - 1))
 export ref="$(git rev-parse $1)"
 
 if [[ -v new_message ]] && [[ -v replace ]]; then
-  echo "ERROR: both -m and -r options are present"
+  echo "ERROR: both -m and -r (or -p) options are present"
   exit 1
 fi
 
 commit_new_message() {
   local curr="$(git rev-parse HEAD)"
   if [[ -v replace ]]; then 
-    new_message="$(git show --pretty=format:"%B" --no-patch ${curr} | sed 's|'${replace}'|'${with}'|g')"
+    new_message="$(git show --pretty=format:"%B" --no-patch ${curr} | sed 's|'"${replace}"'|'"${with}"'|g')"
   fi
   if [[ "${curr}" == "${ref}" ]] || [[ -v replace ]]; then 
     git commit --amend --allow-empty --no-edit -m "${new_message}"
