@@ -1,0 +1,19 @@
+#!/bin/bash
+
+tmp_dir="/tmp/$(basename $(git rev-parse --show-toplevel))"
+installed_commands_basename=installed-commands
+
+remove_repo() {
+    if [ -d "$1" ]; then
+        yes | rm -r $1
+    fi
+}
+
+create_repo() {
+    remove_repo $1
+    mkdir -p $1 &&
+        cd $1 &&
+        git init &&
+        git commit -m "initial commit" --allow-empty # Necessary for HEAD
+    cd ${curr_dir}
+}
