@@ -1,6 +1,33 @@
 #!/bin/bash
 
-new_message="$2"
-desired_ref=$(git rev-parse $1)
-git rebase --keep-empty --rebase-merges ${desired_ref}^ \
-	--exec 'if [ $(git rev-parse HEAD) = '${desired_ref}' ]; then git commit --amend --allow-empty --no-edit -m '"\"${new_message}\""'; fi'
+while getopts "m:r:w:" opt; do
+  case "${opt}" in
+  m) export new_message="${OPTARG}" ;;
+  r) export replace="${OPTARG}" ;; # As basic regex
+  w) export with="${OPTARG}" ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+export ref="$(git rev-parse $1)"
+
+if [[ -v new_message ]] && [[ -v replace ]]; then
+  echo "ERROR: both -m and -r options are present"
+  exit 1
+fi
+
+commit_new_message() {
+  local curr="$(git rev-parse HEAD)"
+  if [[ -v replace ]]; then 
+    new_message="$(git show --pretty=format:"%B" --no-patch ${curr} | sed 's|'${replace}'|'${with}'|g')"
+  fi
+  if [[ "${curr}" == "${ref}" ]] || [[ -v replace ]]; then 
+    git commit --amend --allow-empty --no-edit -m "${new_message}"
+  fi
+}
+
+printf -v serialized_fun '%q ' "$(declare -f commit_new_message); commit_new_message"
+export serialized_fun
+
+git rebase --keep-empty --rebase-merges "${ref}^" \
+	--exec 'bash -c "eval ${serialized_fun}"'
