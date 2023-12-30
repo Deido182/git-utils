@@ -14,14 +14,43 @@ into="$1"
 
 . "$(git rev-parse --show-toplevel)/utils/common-functions-and-constants"
 
-print_does_not_exist() {
-	echo -e "${yellow_text}'$1' does not exist in '$2'"
+print_coloured() {
+	echo -e "$1$2"
 }
+
+print_warning() {
+	print_coloured "${yellow_text}" "$1"
+}
+
+print_error() {
+	print_coloured "${red_text}" "$1"
+}
+
+print_success() {
+	print_coloured "${green_text}" "$1"
+}
+
+print_does_not_exist() {
+	print_warning "'$1' does not exist in '$2'"
+}
+
+if [[ "${into}" == "" ]]; then
+	print_error "ERROR: no destination branch specified"
+	exit 1
+fi
+
+if [[ ${#features[@]} = 0 ]]; then
+	print_warning "WARNING: no feature name specified"
+fi
+
+if [[ ${#urls[@]} = 0 ]]; then
+	print_warning "WARNING: no repository (url) specified"
+fi
 
 i=0
 curr_dir="$(pwd)"
 repo="${tmp_dir}/aremergedinto-repo"
-create_repo "${repo}"
+create_repo "${repo}" > /dev/null 2>&1
 cd "${repo}"
 for url in ${urls[@]}; do
 	origin="origin-$((i++))"
@@ -38,10 +67,13 @@ for url in ${urls[@]}; do
 			continue
 		fi
 		ans=$(git ismergedinto -b "${origin}/${feature}" "${origin}/${into}")
-		[[ "${ans}" == "true" ]] && text_color=${green_text} || text_color=${red_text}
-		echo -e "${text_color}'${url}': is '${feature}' merged into '${into}'? ${ans}"
+		if [[ "${ans}" == "true" ]]; then
+			print_success "'${url}': '${feature}' is merged into '${into}'"
+		else
+			print_error "'${url}': '${feature}' is not merged into '${into}'"
+		fi
 	done
 	git remote remove "${origin}"
 done
 cd "${curr_dir}"
-remove_repo "${repo}"
+remove_repo "${repo}" > /dev/null 2>&1
