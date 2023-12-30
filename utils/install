@@ -1,5 +1,4 @@
-#!/bin/bash -i
-# Run as 'interactive' so as to being able to source ~/.bashrc
+#!/bin/bash
 
 root_dir="$(git rev-parse --show-toplevel)"
 commands_dir="${root_dir}/commands"
@@ -19,6 +18,7 @@ fi
 rm -r ${installed_commands_dir} 2>/dev/null
 mkdir ${installed_commands_dir} 2>/dev/null &&
 	git checkout ${ref} &&
+	cp -r ${commands_dir}/libs ${installed_commands_dir} &&
 	find ${commands_dir}/git-* -type f 2>/dev/null |
 	xargs -L 1 -i bash -c 'basename {}' |
 		xargs -L 1 -i bash -c "cp --force ${commands_dir}/{} ${installed_commands_dir} 2> /dev/null && \
