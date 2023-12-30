@@ -2,6 +2,10 @@
 
 tmp_dir="/tmp/$(basename $(git rev-parse --show-toplevel))"
 installed_commands_basename=installed-commands
+red_text='\033[0;31m'
+green_text='\033[0;32m'
+yellow_text='\033[0;33m'
+default_text='\033[0m'
 
 remove_repo() {
     if [ -d "$1" ]; then
