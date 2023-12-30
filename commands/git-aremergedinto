@@ -23,7 +23,7 @@ curr_dir="$(pwd)"
 repo="${tmp_dir}/aremergedinto-repo"
 create_repo "${repo}"
 cd "${repo}"
-for url in ${urls}; do
+for url in ${urls[@]}; do
 	origin="origin-$((i++))"
 	git remote add "${origin}" "${url}"
 	git pull "${origin}" "${into}" --no-edit --allow-unrelated-histories > /dev/null 2>&1
@@ -31,7 +31,7 @@ for url in ${urls}; do
 		print_does_not_exist "${into}" "${url}"
 		continue
 	fi
-	for feature in ${features}; do
+	for feature in ${features[@]}; do
 		git pull "${origin}" "${feature}" --no-edit --allow-unrelated-histories > /dev/null 2>&1
 		if [ $? -ne 0 ]; then
 			print_does_not_exist "${feature}" "${url}"
