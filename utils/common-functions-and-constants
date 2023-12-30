@@ -35,5 +35,5 @@ create_repo() {
         cd $1 &&
         git init &&
         git commit -m "initial commit" --allow-empty # Necessary for HEAD
-    cd ${curr_dir}
+    echo "$(pwd)"
 }
