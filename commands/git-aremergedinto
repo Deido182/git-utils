@@ -14,37 +14,21 @@ into="$1"
 
 . "$(git rev-parse --show-toplevel)/utils/common-functions-and-constants"
 
-print_coloured() {
-	echo -e "$1$2"
-}
-
-print_warning() {
-	print_coloured "${yellow_text}" "$1"
-}
-
-print_error() {
-	print_coloured "${red_text}" "$1"
-}
-
-print_success() {
-	print_coloured "${green_text}" "$1"
-}
-
 print_does_not_exist() {
 	print_warning "'$1' does not exist in '$2'"
 }
 
 if [[ "${into}" == "" ]]; then
-	print_error "ERROR: no destination branch specified"
+	print_error "No destination branch specified"
 	exit 1
 fi
 
 if [[ ${#features[@]} = 0 ]]; then
-	print_warning "WARNING: no feature name specified"
+	print_warning "No feature name specified"
 fi
 
 if [[ ${#urls[@]} = 0 ]]; then
-	print_warning "WARNING: no repository (url) specified"
+	print_warning "No repository (url) specified"
 fi
 
 i=0
