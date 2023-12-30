@@ -18,6 +18,7 @@ fi
 rm -r ${installed_commands_dir} 2>/dev/null
 mkdir ${installed_commands_dir} 2>/dev/null &&
 	git checkout ${ref} &&
+	cp -r ${commands_dir}/libs ${installed_commands_dir} &&
 	find ${commands_dir}/git-* -type f 2>/dev/null |
 	xargs -L 1 -i bash -c 'basename {}' |
 		xargs -L 1 -i bash -c "cp --force ${commands_dir}/{} ${installed_commands_dir} 2> /dev/null && \
