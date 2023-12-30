@@ -1,6 +1,6 @@
 #!/bin/bash
 
-tmp_dir="/tmp/$(basename $(git rev-parse --show-toplevel))"
+tmp_dir="/tmp/git-utils"
 installed_commands_basename=installed-commands
 red_text='\033[0;31m'
 green_text='\033[0;32m'
@@ -35,5 +35,4 @@ create_repo() {
         cd $1 &&
         git init &&
         git commit -m "initial commit" --allow-empty # Necessary for HEAD
-    echo "$(pwd)"
 }
