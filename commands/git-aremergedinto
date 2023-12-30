@@ -19,7 +19,7 @@ print_does_not_exist() {
 }
 
 if [[ "${into}" == "" ]]; then
-	print_error "No destination branch specified"
+	print_error "No destination branch specified: into which one?"
 	exit 1
 fi
 
