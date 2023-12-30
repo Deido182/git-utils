@@ -1,0 +1,63 @@
+#!/bin/bash
+
+features=()
+urls=()
+while getopts "n:u:" opt; do
+	case "${opt}" in
+	n) features+=("feature/${OPTARG}") ;;
+	u) urls+=("${OPTARG}") ;;
+	esac
+done
+shift $((OPTIND - 1))
+
+into="$1"
+
+. "$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/libs/common-functions-and-constants"
+
+print_does_not_exist() {
+	print_warning "'$1' does not exist in '$2'"
+}
+
+if [[ "${into}" == "" ]]; then
+	print_error "No destination branch specified: into which one?"
+	exit 1
+fi
+
+if [[ ${#features[@]} = 0 ]]; then
+	print_warning "No feature name specified"
+fi
+
+if [[ ${#urls[@]} = 0 ]]; then
+	print_warning "No repository (url) specified"
+fi
+
+i=0
+curr_dir="$(pwd)"
+repo="${tmp_dir}/aremergedinto-repo"
+create_repo "${repo}" > /dev/null 2>&1
+cd "${repo}"
+for url in ${urls[@]}; do
+	origin="origin-$((i++))"
+	git remote add "${origin}" "${url}"
+	git pull "${origin}" "${into}" --no-edit --allow-unrelated-histories > /dev/null 2>&1
+	if [ $? -ne 0 ]; then
+		print_does_not_exist "${into}" "${url}"
+		continue
+	fi
+	for feature in ${features[@]}; do
+		git pull "${origin}" "${feature}" --no-edit --allow-unrelated-histories > /dev/null 2>&1
+		if [ $? -ne 0 ]; then
+			print_does_not_exist "${feature}" "${url}"
+			continue
+		fi
+		ans=$(git ismergedinto -b "${origin}/${feature}" "${origin}/${into}")
+		if [[ "${ans}" == "true" ]]; then
+			print_success "'${url}': '${feature}' is merged into '${into}'"
+		else
+			print_error "'${url}': '${feature}' is not merged into '${into}'"
+		fi
+	done
+	git remote remove "${origin}"
+done
+cd "${curr_dir}"
+remove_repo "${repo}" > /dev/null 2>&1
