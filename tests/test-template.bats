@@ -24,6 +24,7 @@ setup() {
 
     # Setup new test-repo
     create_repo ${test_repo}
+    cd ${curr_dir}
     # Add mocked remote
     create_repo ${mocked_remote}
     cd ${mocked_remote}
