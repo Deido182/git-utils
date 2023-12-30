@@ -7,24 +7,10 @@
 
 curr_dir="$(pwd)"
 root_dir="$(git rev-parse --show-toplevel)"
-test_repo="/tmp/$(basename ${root_dir})/test-repo"
-mocked_remote="/tmp/$(basename ${root_dir})/mocked-remote"
-installed_commands_basename=installed-commands
+. "${root_dir}/commands/libs/common-functions-and-constants"
 
-remove_repo() {
-    if [ -d "$1" ]; then
-        yes | rm -r $1
-    fi
-}
-
-create_repo() {
-    remove_repo $1
-    mkdir -p $1 &&
-        cd $1 &&
-        git init &&
-        git commit -m "initial commit" --allow-empty # Necessary for HEAD
-    cd ${curr_dir}
-}
+test_repo="${tmp_dir}/test-repo"
+mocked_remote="${tmp_dir}/mocked-remote"
 
 # Run before each test; this function must be unique and all tests should source this file
 setup() {
@@ -38,6 +24,7 @@ setup() {
 
     # Setup new test-repo
     create_repo ${test_repo}
+    cd ${curr_dir}
     # Add mocked remote
     create_repo ${mocked_remote}
     cd ${mocked_remote}

@@ -1,0 +1,38 @@
+#!/bin/bash
+
+tmp_dir="/tmp/git-utils"
+installed_commands_basename=installed-commands
+red_text='\033[0;31m'
+green_text='\033[0;32m'
+yellow_text='\033[0;33m'
+default_text='\033[0m'
+
+print_coloured() {
+	echo -e "$1$2"
+}
+
+print_warning() {
+	print_coloured "${yellow_text}" "WARNING: $1"
+}
+
+print_error() {
+	print_coloured "${red_text}" "ERROR: $1"
+}
+
+print_success() {
+	print_coloured "${green_text}" "$1"
+}
+
+remove_repo() {
+    if [ -d "$1" ]; then
+        yes | rm -r $1
+    fi
+}
+
+create_repo() {
+    remove_repo $1
+    mkdir -p $1 &&
+        cd $1 &&
+        git init &&
+        git commit -m "initial commit" --allow-empty # Necessary for HEAD
+}
