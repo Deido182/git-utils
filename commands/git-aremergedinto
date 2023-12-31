@@ -2,10 +2,13 @@
 
 features=()
 urls=()
-while getopts "n:u:" opt; do
+multithreading_enabled=false
+pids=()
+while getopts "n:u:m" opt; do
 	case "${opt}" in
 	n) features+=("feature/${OPTARG}") ;;
 	u) urls+=("${OPTARG}") ;;
+	m) multithreading_enabled=true ;;
 	esac
 done
 shift $((OPTIND - 1))
@@ -43,8 +46,8 @@ done
 # Fetch all at once
 git remote update > /dev/null 2>&1
 
-remotes=$(git remote)
-for origin in ${remotes[@]}; do
+check_remote() {
+	origin="$1"
 	if [[ $(git rev-parse --verify "${origin}/${into}" 2> /dev/null) == "" ]]; then
 		print_does_not_exist "${into}" "${url}"
 		continue
@@ -61,6 +64,21 @@ for origin in ${remotes[@]}; do
 			print_error "'${url}': '${feature}' is not merged into '${into}'"
 		fi
 	done
+}
+
+remotes=$(git remote)
+for origin in ${remotes[@]}; do
+	if [[ ${multithreading_enabled} == true ]]; then
+		check_remote "${origin}" &
+		pids+=($!)
+	else
+		check_remote "${origin}"
+	fi
 done
+
+if [[ ${multithreading_enabled} == true ]]; then
+	wait ${pids[@]}
+fi
+
 cd "${curr_dir}"
 remove_repo "${repo}" > /dev/null 2>&1
