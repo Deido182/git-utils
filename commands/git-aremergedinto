@@ -41,7 +41,7 @@ for url in ${urls[@]}; do
 	git remote add "${origin}" "${url}"
 done
 # Fetch all at once
-git remote update
+git remote update > /dev/null 2>&1
 
 remotes=$(git remote)
 for origin in ${remotes[@]}; do
