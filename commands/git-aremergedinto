@@ -61,7 +61,6 @@ for origin in ${remotes[@]}; do
 			print_error "'${url}': '${feature}' is not merged into '${into}'"
 		fi
 	done
-	git remote remove "${origin}"
 done
 cd "${curr_dir}"
 remove_repo "${repo}" > /dev/null 2>&1
