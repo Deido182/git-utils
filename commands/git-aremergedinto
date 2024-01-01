@@ -48,14 +48,13 @@ done
 # Fetch all at once
 git remote update > /dev/null
 
-if [[ $? != 0 ]]; then
-	print_error "Some repositories cannot be accessed (or do not exist)"
-	remove_repo "${repo}" > /dev/null 2>&1
-	exit 1
-fi
-
 check_remote() {
-	origin="$1"
+	local origin="$1"
+	local url=$(git remote get-url "${origin}")
+	if [[ $(git rev-parse --verify "${origin}/master" 2> /dev/null) == "" ]]; then
+		print_error "'${url}' either cannot be accessed or does not exist"
+		return
+	fi
 	if [[ $(git rev-parse --verify "${origin}/${into}" 2> /dev/null) == "" ]]; then
 		print_does_not_exist "${into}" "${url}"
 		return

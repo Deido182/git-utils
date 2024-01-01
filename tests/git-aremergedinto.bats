@@ -91,7 +91,7 @@ load test-template.bats
     assert [ ${ok} = "Y" ]
 }
 
-@test "fail due to missing repository" {
+@test "assess there is a feature that has not been merged, while a repo does not exist" {
     feature1_name=test-1
     feature2_name=test-2
     repo1="${tmp_dir}/test-aremergedinto-repo-1"
@@ -102,7 +102,8 @@ load test-template.bats
     cd ${repo2}
     git checkout -b "feature/${feature2_name}"
     git commit -m "Commit" --allow-empty
-    run git aremergedinto -n "${feature2_name}" -u "${url1}" -u "${url2}" -n "${feature1_name}" master
-    assert_failure
+    ans=$(git aremergedinto -n "${feature2_name}" -u "${url1}" -u "${url2}" -n "${feature1_name}" master)
+    [[ "$(echo ${ans} | grep -o ERROR | wc -l)" == 2 ]] && [[ "$(echo ${ans} | grep -o WARNING | wc -l)" == 1 ]] && ok=Y || ok=N
     remove_repo ${repo2}
+    assert [ ${ok} = "Y" ]
 }
