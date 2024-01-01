@@ -26,12 +26,14 @@ if [[ "${into}" == "" ]]; then
 	exit 1
 fi
 
-if [[ ${#features[@]} = 0 ]]; then
+if [[ ${#features[@]} == 0 ]]; then
 	print_warning "No feature name specified"
+	exit 0
 fi
 
-if [[ ${#urls[@]} = 0 ]]; then
+if [[ ${#urls[@]} == 0 ]]; then
 	print_warning "No repository (url) specified"
+	exit 0
 fi
 
 i=0
@@ -44,13 +46,19 @@ for url in ${urls[@]}; do
 	git remote add "${origin}" "${url}"
 done
 # Fetch all at once
-git remote update > /dev/null 2>&1
+git remote update > /dev/null
+
+if [[ $? != 0 ]]; then
+	print_error "Some repositories cannot be accessed (or do not exist)"
+	remove_repo "${repo}" > /dev/null 2>&1
+	exit 1
+fi
 
 check_remote() {
 	origin="$1"
 	if [[ $(git rev-parse --verify "${origin}/${into}" 2> /dev/null) == "" ]]; then
 		print_does_not_exist "${into}" "${url}"
-		continue
+		return
 	fi
 	for feature in ${features[@]}; do
 		if [[ $(git rev-parse --verify "${origin}/${feature}" 2> /dev/null) == "" ]]; then
