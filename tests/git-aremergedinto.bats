@@ -91,7 +91,7 @@ load test-template.bats
     assert [ ${ok} = "Y" ]
 }
 
-@test "fail due to missing repository" {
+@test "assess there is a feature that has not been merged, while a repo does not exist" {
     feature1_name=test-1
     feature2_name=test-2
     repo1="${tmp_dir}/test-aremergedinto-repo-1"
