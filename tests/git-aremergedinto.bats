@@ -90,3 +90,19 @@ load test-template.bats
     remove_repo ${repo4}
     assert [ ${ok} = "Y" ]
 }
+
+@test "fail due to missing repository" {
+    feature1_name=test-1
+    feature2_name=test-2
+    repo1="${tmp_dir}/test-aremergedinto-repo-1"
+    repo2="${tmp_dir}/test-aremergedinto-repo-2"
+    create_repo ${repo2}
+    url1="file://${repo1}/.git"
+    url2="file://${repo2}/.git"
+    cd ${repo2}
+    git checkout -b "feature/${feature2_name}"
+    git commit -m "Commit" --allow-empty
+    run git aremergedinto -n "${feature2_name}" -u "${url1}" -u "${url2}" -n "${feature1_name}" master
+    assert_failure
+    remove_repo ${repo2}
+}
