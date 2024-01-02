@@ -43,7 +43,7 @@ create_repo "${repo}" > /dev/null 2>&1
 cd "${repo}"
 for url in ${urls[@]}; do
 	origin="origin-$((i++))"
-	git remote add "${origin}" "${url}"
+	git remote add --no-tags "${origin}" "${url}"
 done
 # Fetch all at once
 git remote update > /dev/null
