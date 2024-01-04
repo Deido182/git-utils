@@ -8,7 +8,7 @@ git submodule add https://github.com/bats-core/bats-support.git ${tests_dir}/tes
 git submodule add https://github.com/bats-core/bats-assert.git ${tests_dir}/test_helper/bats-assert >/dev/null 2>&1
 git submodule update --init >/dev/null 2>&1
 
-which bash
+which bash > /dev/null
 if [[ $? != 0 ]]; then
     echo "ERROR: no 'bash' version installed"
 fi
