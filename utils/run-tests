@@ -8,9 +8,11 @@ git submodule add https://github.com/bats-core/bats-support.git ${tests_dir}/tes
 git submodule add https://github.com/bats-core/bats-assert.git ${tests_dir}/test_helper/bats-assert >/dev/null 2>&1
 git submodule update --init >/dev/null 2>&1
 
-test_with=("bash" "zsh")
+which bash
+if [[ $? != 0 ]]; then
+    echo "ERROR: no 'bash' version installed"
+fi
 
-for curr in ${test_with[@]}; do
-    echo "### Testing with $([[ $(basename ${SHELL}) == ${curr} ]] && echo "(default) ")shell: ${curr} ###"
-    ${curr} -c "${tests_dir}/bats/bin/bats ${tests_dir}"
-done
+bash_version=$(bash --version 2> /dev/null | head -n 1)
+echo "### 'bash' version the commands will be run and tested with: ${bash_version} ###"
+${tests_dir}/bats/bin/bats ${tests_dir}
