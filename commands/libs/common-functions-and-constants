@@ -36,3 +36,19 @@ create_repo() {
         git init &&
         git commit -m "initial commit" --allow-empty # Necessary for HEAD
 }
+
+split() {
+    sep=" "
+    while getopts "s:" opt; do
+        case "${opt}" in
+        s) sep="${OPTARG}" ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+    tokens=()
+    IFS="${sep}" read -ra ADDR <<< "$1"
+    for tok in "${ADDR[@]}"; do
+        tokens+=("${tok}")
+    done
+    echo ${tokens[@]}
+}
