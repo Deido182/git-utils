@@ -52,8 +52,3 @@ split() {
     done
     echo ${tokens[@]}
 }
-
-succeed() {
-    command="$1"
-    command && echo true || echo false
-}
