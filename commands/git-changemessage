@@ -10,11 +10,21 @@ while getopts "m:r:w:p:" opt; do
 done
 shift $((OPTIND - 1))
 
+. "$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/libs/common-functions-and-constants"
+
 export ref="$(git rev-parse $1)"
 
 if [[ -v new_message ]] && [[ -v replace ]]; then
-  echo "ERROR: both -m and -r (or -p) options are present"
+  print_error "Both -m and -r (or -p) options are present"
   exit 1
+fi
+
+if [[ -v replace ]]; then
+  require_confirmation "Going to perform the replacement on several commits (from '${ref}' on)"
+  if [[ $? != 0 ]]; then
+    print_error "Replacement aborted"
+    exit 1
+  fi
 fi
 
 commit_new_message() {
