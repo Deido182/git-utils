@@ -15,7 +15,7 @@ shift $((OPTIND - 1))
 export ref="$(git rev-parse $1)"
 
 if [[ -v new_message ]] && [[ -v replace ]]; then
-  echo "ERROR: both -m and -r (or -p) options are present"
+  print_error "Both -m and -r (or -p) options are present"
   exit 1
 fi
 
