@@ -46,11 +46,31 @@ load test-template.bats
 	assert [ ${old_penultimate_matches} -eq 1 ]
 	replace="message"
 	with="replaced"
-	git changemessage -r "${replace}" -w "${with}" develop^
+	git changemessage -r "${replace}" -w "${with}" develop^ <<< 1
 	new_penultimate_matches=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "penultimate replaced" ]] && echo 1 || echo 0)
 	assert [ ${new_penultimate_matches} -eq 1 ]
 	new_last_matches=$([[ "$(git show HEAD --pretty=format:"%B" --no-patch)" == "last replaced" ]] && echo 1 || echo 0)
 	assert [ ${new_last_matches} -eq 1 ]
+	assert [ -z "$(git diff origin/develop)" ]
+}
+
+@test "fail replacing part of the last 2 commits' messages, due to missing confirmation" {
+	git checkout -b develop
+	penultimate_message="penultimate message"
+	last_message="last message"
+	git commit -m "${penultimate_message}" --allow-empty
+	git commit -m "${last_message}" --allow-empty
+	git push -u origin develop
+	old_penultimate_matches=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "${penultimate_message}" ]] && echo 1 || echo 0)
+	assert [ ${old_penultimate_matches} -eq 1 ]
+	replace="message"
+	with="replaced"
+	run git changemessage -r "${replace}" -w "${with}" develop^ <<< 2
+	assert_failure
+	penultimate_still_matches=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "${penultimate_message}" ]] && echo 1 || echo 0)
+	assert [ ${penultimate_still_matches} -eq 1 ]
+	last_still_matches=$([[ "$(git show HEAD --pretty=format:"%B" --no-patch)" == "${last_message}" ]] && echo 1 || echo 0)
+	assert [ ${last_still_matches} -eq 1 ]
 	assert [ -z "$(git diff origin/develop)" ]
 }
 
@@ -78,11 +98,30 @@ load test-template.bats
 	old_penultimate_matches=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "${penultimate_message}" ]] && echo 1 || echo 0)
 	assert [ ${old_penultimate_matches} -eq 1 ]
 	prefix="prefix "
-	git changemessage -p "${prefix}" develop^
+	git changemessage -p "${prefix}" develop^ <<< 1
 	new_penultimate_matches=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "${prefix}${penultimate_message}" ]] && echo 1 || echo 0)
 	assert [ ${new_penultimate_matches} -eq 1 ]
 	new_last_matches=$([[ "$(git show HEAD --pretty=format:"%B" --no-patch)" == "${prefix}${last_message}" ]] && echo 1 || echo 0)
 	assert [ ${new_last_matches} -eq 1 ]
+	assert [ -z "$(git diff origin/develop)" ]
+}
+
+@test "fail adding a prefix to the last 2 commits' messages, due to missing confirmation" {
+	git checkout -b develop
+	penultimate_message="penultimate message"
+	last_message="last message"
+	git commit -m "${penultimate_message}" --allow-empty
+	git commit -m "${last_message}" --allow-empty
+	git push -u origin develop
+	old_penultimate_matches=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "${penultimate_message}" ]] && echo 1 || echo 0)
+	assert [ ${old_penultimate_matches} -eq 1 ]
+	prefix="prefix "
+	run git changemessage -p "${prefix}" develop^ <<< 2
+	assert_failure
+	penultimate_still_matches=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "${penultimate_message}" ]] && echo 1 || echo 0)
+	assert [ ${penultimate_still_matches} -eq 1 ]
+	last_still_matches=$([[ "$(git show HEAD --pretty=format:"%B" --no-patch)" == "${last_message}" ]] && echo 1 || echo 0)
+	assert [ ${last_still_matches} -eq 1 ]
 	assert [ -z "$(git diff origin/develop)" ]
 }
 
