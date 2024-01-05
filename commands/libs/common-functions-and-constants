@@ -36,3 +36,31 @@ create_repo() {
         git init &&
         git commit -m "initial commit" --allow-empty # Necessary for HEAD
 }
+
+split() {
+    local str="$1"
+    local sep="$2"
+    local -n tokens=$3
+    local first_in=1
+    for i in $(seq ${#sep} 1 ${#str}); do
+        local last_in=$((${i}-${#sep}))
+        if [[ "$(expr substr "${str}" $((${last_in}+1)) ${#sep})" == "${sep}" ]]; then
+            tokens+=("$(expr substr "${str}" ${first_in} $((${last_in}-${first_in}+1)))")
+            first_in=$((${i}+1))
+        fi
+    done
+    if [[ ${first_in} != $((${#str}+1)) ]]; then
+        tokens+=("$(expr substr "${str}" ${first_in} $((${#str}-${first_in}+1)))")
+    fi
+}
+
+require_confirmation() {
+    echo "$1"
+    echo "Do you want to continue?"
+    select yn in "Yes" "No"; do
+        case $yn in
+            Yes ) return 0 ;;
+            No ) return 1 ;;
+        esac
+    done
+}
