@@ -46,31 +46,11 @@ load test-template.bats
 	assert [ ${old_penultimate_matches} -eq 1 ]
 	replace="message"
 	with="replaced"
-	git changemessage -r "${replace}" -w "${with}" develop^ <<< 1
+	git changemessage -r "${replace}" -w "${with}" develop^..develop
 	new_penultimate_matches=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "penultimate replaced" ]] && echo 1 || echo 0)
 	assert [ ${new_penultimate_matches} -eq 1 ]
 	new_last_matches=$([[ "$(git show HEAD --pretty=format:"%B" --no-patch)" == "last replaced" ]] && echo 1 || echo 0)
 	assert [ ${new_last_matches} -eq 1 ]
-	assert [ -z "$(git diff origin/develop)" ]
-}
-
-@test "fail replacing part of the last 2 commits' messages, due to missing confirmation" {
-	git checkout -b develop
-	penultimate_message="penultimate message"
-	last_message="last message"
-	git commit -m "${penultimate_message}" --allow-empty
-	git commit -m "${last_message}" --allow-empty
-	git push -u origin develop
-	old_penultimate_matches=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "${penultimate_message}" ]] && echo 1 || echo 0)
-	assert [ ${old_penultimate_matches} -eq 1 ]
-	replace="message"
-	with="replaced"
-	run git changemessage -r "${replace}" -w "${with}" develop^ <<< 2
-	assert_failure
-	penultimate_still_matches=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "${penultimate_message}" ]] && echo 1 || echo 0)
-	assert [ ${penultimate_still_matches} -eq 1 ]
-	last_still_matches=$([[ "$(git show HEAD --pretty=format:"%B" --no-patch)" == "${last_message}" ]] && echo 1 || echo 0)
-	assert [ ${last_still_matches} -eq 1 ]
 	assert [ -z "$(git diff origin/develop)" ]
 }
 
@@ -98,30 +78,11 @@ load test-template.bats
 	old_penultimate_matches=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "${penultimate_message}" ]] && echo 1 || echo 0)
 	assert [ ${old_penultimate_matches} -eq 1 ]
 	prefix="prefix "
-	git changemessage -p "${prefix}" develop^ <<< 1
+	git changemessage -p "${prefix}" develop^ develop
 	new_penultimate_matches=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "${prefix}${penultimate_message}" ]] && echo 1 || echo 0)
 	assert [ ${new_penultimate_matches} -eq 1 ]
 	new_last_matches=$([[ "$(git show HEAD --pretty=format:"%B" --no-patch)" == "${prefix}${last_message}" ]] && echo 1 || echo 0)
 	assert [ ${new_last_matches} -eq 1 ]
-	assert [ -z "$(git diff origin/develop)" ]
-}
-
-@test "fail adding a prefix to the last 2 commits' messages, due to missing confirmation" {
-	git checkout -b develop
-	penultimate_message="penultimate message"
-	last_message="last message"
-	git commit -m "${penultimate_message}" --allow-empty
-	git commit -m "${last_message}" --allow-empty
-	git push -u origin develop
-	old_penultimate_matches=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "${penultimate_message}" ]] && echo 1 || echo 0)
-	assert [ ${old_penultimate_matches} -eq 1 ]
-	prefix="prefix "
-	run git changemessage -p "${prefix}" develop^ <<< 2
-	assert_failure
-	penultimate_still_matches=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "${penultimate_message}" ]] && echo 1 || echo 0)
-	assert [ ${penultimate_still_matches} -eq 1 ]
-	last_still_matches=$([[ "$(git show HEAD --pretty=format:"%B" --no-patch)" == "${last_message}" ]] && echo 1 || echo 0)
-	assert [ ${last_still_matches} -eq 1 ]
 	assert [ -z "$(git diff origin/develop)" ]
 }
 
@@ -137,4 +98,62 @@ load test-template.bats
 	assert_failure
 	last_still_matches=$([[ "$(git show HEAD --pretty=format:"%B" --no-patch)" == "${last_message}" ]] && echo 1 || echo 0)
 	assert [ ${last_still_matches} -eq 1 ]
+}
+
+@test "change the message of some commits" {
+	git checkout -b develop
+	git commit -m "commit 1" --allow-empty
+	git commit -m "commit 2" --allow-empty
+	git commit -m "commit 3" --allow-empty
+	git commit -m "commit 4" --allow-empty
+	git commit -m "commit 5" --allow-empty
+	git commit -m "commit 6" --allow-empty
+	git commit -m "commit 7" --allow-empty
+	git push -u origin develop
+	new_message="New message"
+	git changemessage -m "${new_message}" HEAD^^^^..HEAD^^ HEAD HEAD^^^^^^ HEAD^^..HEAD^^
+	mods_ok=$([[ "$(git log --pretty=%s | grep -o "${new_message}" | wc -l)" == 5 ]] && echo 1 || echo 0)
+	assert [ ${mods_ok} -eq 1 ]
+	commit_2_not_changed=$([[ "$(git show HEAD^^^^^ --pretty=format:"%B" --no-patch)" == "commit 2" ]] && echo 1 || echo 0)
+	assert [ ${commit_2_not_changed} -eq 1 ]
+	commit_6_not_changed=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "commit 6" ]] && echo 1 || echo 0)
+	assert [ ${commit_6_not_changed} -eq 1 ]
+	assert [ -z "$(git diff origin/develop)" ]
+}
+
+@test "append a prefix to some commits" {
+	git checkout -b develop
+	git commit -m "commit 1" --allow-empty
+	git commit -m "commit 2" --allow-empty
+	git commit -m "commit 3" --allow-empty
+	git commit -m "commit 4" --allow-empty
+	git commit -m "commit 5" --allow-empty
+	git commit -m "commit 6" --allow-empty
+	git commit -m "commit 7" --allow-empty
+	git push -u origin develop
+	prefix="New prefix "
+	git changemessage -p "${prefix}" HEAD^^^^..HEAD^^ HEAD HEAD^^^^^^ HEAD^^..HEAD^^
+	mods_ok=$([[ "$(git log --pretty=%s | grep -o "${prefix}" | wc -l)" == 5 ]] && echo 1 || echo 0)
+	assert [ ${mods_ok} -eq 1 ]
+	commit_2_not_changed=$([[ "$(git show HEAD^^^^^ --pretty=format:"%B" --no-patch)" == "commit 2" ]] && echo 1 || echo 0)
+	assert [ ${commit_2_not_changed} -eq 1 ]
+	commit_6_not_changed=$([[ "$(git show HEAD^ --pretty=format:"%B" --no-patch)" == "commit 6" ]] && echo 1 || echo 0)
+	assert [ ${commit_6_not_changed} -eq 1 ]
+	assert [ -z "$(git diff origin/develop)" ]
+}
+
+@test "fail due to invalid range" {
+	git checkout -b develop
+	git commit -m "commit 1" --allow-empty
+	git commit -m "commit 2" --allow-empty
+	git commit -m "commit 3" --allow-empty
+	git commit -m "commit 4" --allow-empty
+	git commit -m "commit 5" --allow-empty
+	git commit -m "commit 6" --allow-empty
+	git commit -m "commit 7" --allow-empty
+	git push -u origin develop
+	new_message="New message"
+	run git changemessage -m "${new_message}" HEAD^^^^..HEAD^^ HEAD HEAD^^^^^^ HEAD^..HEAD^^
+	assert_failure
+	assert [ -z "$(git diff origin/develop)" ]
 }

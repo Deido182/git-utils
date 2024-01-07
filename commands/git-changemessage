@@ -10,29 +10,43 @@ while getopts "m:r:w:p:" opt; do
 done
 shift $((OPTIND - 1))
 
-. "$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/libs/common-functions-and-constants"
-
-export ref="$(git rev-parse $1)"
-
 if [[ -v new_message ]] && [[ -v replace ]]; then
   print_error "Both -m and -r (or -p) options are present"
   exit 1
 fi
 
-if [[ -v replace ]]; then
-  require_confirmation "Going to perform the replacement on several commits (from '${ref}' on)"
-  if [[ $? != 0 ]]; then
-    print_error "Replacement aborted"
-    exit 1
+. "$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/libs/common-functions-and-constants"
+
+raw_refs=$@
+rev_list=($(git rev-list HEAD))
+indexes=()
+
+for ref in ${raw_refs[@]}; do
+  toks=()
+  split "${ref}" ".." toks
+  index0=$(index_of ${rev_list[@]} "$(git rev-parse ${toks[0]})")
+  if [[ ${#toks[@]} > 1 ]]; then
+    index1=$(index_of ${rev_list[@]} "$(git rev-parse ${toks[1]})")
   fi
-fi
+  if [[ -v index1 && index0 != index1 ]]; then
+    if [[ ${index0} < ${index1} ]]; then
+      print_error "'${ref}' is not a valid range"
+      exit 1
+    fi
+    indexes+=($(seq ${index1} 1 $((${index0}-1))))
+    unset index1
+  fi
+  indexes+=(${index0})
+done
+
+indexes=($(drop_duplicates ${indexes[@]} | sort -n))
 
 commit_new_message() {
   local curr="$(git rev-parse HEAD)"
-  if [[ -v replace ]]; then 
-    new_message="$(git show --pretty=format:"%B" --no-patch ${curr} | sed 's|'"${replace}"'|'"${with}"'|g')"
-  fi
-  if [[ "${curr}" == "${ref}" ]] || [[ -v replace ]]; then 
+  if [[ "${curr}" == "${ref}" ]]; then 
+    if [[ -v replace ]]; then 
+      new_message="$(git show --pretty=format:"%B" --no-patch ${curr} | sed 's|'"${replace}"'|'"${with}"'|g')"
+    fi
     git commit --amend --allow-empty --no-edit -m "${new_message}"
   fi
 }
@@ -40,5 +54,8 @@ commit_new_message() {
 printf -v serialized_fun '%q ' "$(declare -f commit_new_message); commit_new_message"
 export serialized_fun
 
-git rebase --keep-empty --rebase-merges "${ref}^" \
-	--exec 'bash -c "eval ${serialized_fun}"'
+for i in ${indexes[@]}; do
+  export ref="${rev_list[i]}"
+  git rebase --keep-empty --rebase-merges "${ref}^" \
+	  --exec 'bash -c "eval ${serialized_fun}"'
+done
