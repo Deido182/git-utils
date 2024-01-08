@@ -25,8 +25,6 @@ elif [ -z "$1" ]; then
 	exit 1
 else
 	dest="$1"
-
-	get_all_containing_source |
-		grep '^'"${dest}"'$' >/dev/null 2>&1 &&
-		echo true || echo false
+	git merge-base --is-ancestor "${source}" "${dest}" \
+		&& echo true || echo false
 fi
