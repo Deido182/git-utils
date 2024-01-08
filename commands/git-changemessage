@@ -24,9 +24,9 @@ indexes=()
 for ref in ${raw_refs[@]}; do
   toks=()
   split "${ref}" ".." toks
-  index0=$(index_of ${rev_list[@]} "$(git rev-parse ${toks[0]})")
+  index0=$(index_of rev_list "$(git rev-parse ${toks[0]})")
   if [[ ${#toks[@]} > 1 ]]; then
-    index1=$(index_of ${rev_list[@]} "$(git rev-parse ${toks[1]})")
+    index1=$(index_of rev_list "$(git rev-parse ${toks[1]})")
   fi
   if [[ -v index1 && index0 != index1 ]]; then
     if [[ ${index0} < ${index1} ]]; then
@@ -39,7 +39,8 @@ for ref in ${raw_refs[@]}; do
   indexes+=(${index0})
 done
 
-indexes=($(drop_duplicates ${indexes[@]} | sort -n))
+drop_duplicates indexes
+indexes=($(echo ${indexes[@]} | sort -n))
 
 commit_new_message() {
   local curr="$(git rev-parse HEAD)"

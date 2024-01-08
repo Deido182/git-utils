@@ -37,22 +37,23 @@ create_repo() {
         git commit -m "initial commit" --allow-empty # Necessary for HEAD
 }
 
+# Simply 'echo' an array would not work, due to possible spaces in elements
+
 split() {
     local str="$1"
     local sep="$2"
-    # Simply 'echo' the result would not work, due to possible spaces in elements
     # To prevent circular reference
-    local -n _split_fun_tokens=$3
+    local -n _split_fun_input=$3
     local first_in=1
     for i in $(seq ${#sep} 1 ${#str}); do
         local last_in=$((${i}-${#sep}))
         if [[ "$(expr substr "${str}" $((${last_in}+1)) ${#sep})" == "${sep}" ]]; then
-            _split_fun_tokens+=("$(expr substr "${str}" ${first_in} $((${last_in}-${first_in}+1)))")
+            _split_fun_input+=("$(expr substr "${str}" ${first_in} $((${last_in}-${first_in}+1)))")
             first_in=$((${i}+1))
         fi
     done
     if [[ ${first_in} != $((${#str}+1)) ]]; then
-        _split_fun_tokens+=("$(expr substr "${str}" ${first_in} $((${#str}-${first_in}+1)))")
+        _split_fun_input+=("$(expr substr "${str}" ${first_in} $((${#str}-${first_in}+1)))")
     fi
 }
 
@@ -67,33 +68,44 @@ require_confirmation() {
     done
 }
 
+# In-place
 sort_array() {
-  # TODO: add -n option and handler for elements with spaces
-  IFS=$'\n' out=($(sort <<< "$*"))
+  # TODO: add -n option
+  # To prevent circular reference
+  local -n _sort_array_fun_input=$1
+  IFS=$'\n' _sort_array_fun_input=($(sort <<< "${_sort_array_fun_input[*]}"))
   unset IFS
-  echo ${out[@]}
 }
 
+clone_into() {
+  # To prevent circular reference
+  local -n _clone_into_fun_input=$1
+  local -n _clone_into_fun_output=$2
+  IFS=$'\n' _clone_into_fun_output=($(printf '%s\n' "${_clone_into_fun_input[@]}"))
+  unset IFS
+}
+
+# In-place
 drop_duplicates() {
-  # TODO: add handler for elements with spaces
-  local input=($(sort_array $@))
-  local out=("${input[0]}")
-  for i in $(seq 1 1 $((${#input[@]}-1))); do
-    if [[ "${input[i]}" == "${input[i-1]}" ]]; then
+  # To prevent circular reference
+  local -n _drop_duplicates_fun_input=$1
+  sort_array _drop_duplicates_fun_input
+  local out=("${_drop_duplicates_fun_input[0]}")
+  for i in $(seq 1 1 $((${#_drop_duplicates_fun_input[@]}-1))); do
+    if [[ "${_drop_duplicates_fun_input[i]}" == "${_drop_duplicates_fun_input[i-1]}" ]]; then
       continue
     fi
-    out+=("${input[i]}")
+    out+=("${_drop_duplicates_fun_input[i]}")
   done
-  echo ${out[@]}
+  clone_into out _drop_duplicates_fun_input
 }
 
 index_of() {
-  # TODO: add handler for elements with spaces
-  local arr=(${@:1:$#-1})
-  shift $(($#-1))
-  local el=$1
-  for i in $(seq 0 1 $((${#arr[@]}-1))); do
-    if [[ "${el}" == "${arr[i]}" ]]; then
+  # To prevent circular reference
+  local -n _index_of_fun_input=$1
+  local el="$2"
+  for i in $(seq 0 1 $((${#_index_of_fun_input[@]}-1))); do
+    if [[ "${el}" == "${_index_of_fun_input[i]}" ]]; then
       echo $i
       return 0
     fi
