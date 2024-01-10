@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env -S bash -i
 
 while getopts "m:r:w:p:" opt; do
   case "${opt}" in
