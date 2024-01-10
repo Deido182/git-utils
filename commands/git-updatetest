@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env -S bash -i
 
 force=false
 latest=false
