@@ -1,4 +1,4 @@
-#!/usr/bin/env -S bash -i
+#!/usr/bin/env bash
 
 source=$(git rev-parse --abbrev-ref HEAD)
 list_all=false
