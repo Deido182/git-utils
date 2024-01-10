@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env -S bash -i
 
 curr=$(git rev-parse --abbrev-ref HEAD)
 git checkout $1
