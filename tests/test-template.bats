@@ -12,6 +12,11 @@ root_dir="$(git rev-parse --show-toplevel)"
 test_repo="${tmp_dir}/test-repo"
 mocked_remote="${tmp_dir}/mocked-remote"
 
+set_mocked_info() {
+    git config --local user.name "Test Name"
+    git config --local user.email "test@name.com"
+}
+
 # Run before each test; this function must be unique and all tests should source this file
 setup() {
     DIR="$(cd "$(dirname "$BATS_TEST_FILENAME")" >/dev/null 2>&1 && pwd)"
@@ -24,10 +29,11 @@ setup() {
 
     # Setup new test-repo
     create_repo ${test_repo}
+    set_mocked_info
     cd ${curr_dir}
     # Add mocked remote
     create_repo ${mocked_remote}
-    cd ${mocked_remote}
+    set_mocked_info
     git config receive.denyCurrentBranch ignore
     cd ${test_repo}
     git remote add origin "file://${mocked_remote}/.git"
