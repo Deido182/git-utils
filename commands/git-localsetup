@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env -S bash -i
 
 command=$1
 env=$2
