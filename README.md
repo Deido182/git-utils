@@ -12,7 +12,6 @@ Have a look at the ```README``` file of the ```commands``` directory for a few m
 Otherwise, you could directly copy the scripts present in ```commands``` into either ```/usr/bin``` or any other directory already part of ```PATH```.
 
 ### Development
-As for development, after the ```git clone``` would be worth running ```git init --template=template-dir/``` from the root directory of the repository.<br>
-Anyway, for each command of the form ```git-<name>``` added to the ```commands``` directory, a description file ```git-<name>.md``` and a unit-tests file ```git-<name>.bats``` must be added to ```docs``` and ```tests``` directories, respectively.<br>
+For each command of the form ```git-<name>``` added to the ```commands``` directory, a description file ```git-<name>.md``` and a unit-tests file ```git-<name>.bats``` must be added to ```docs``` and ```tests``` directories, respectively.<br>
 The branch ```factory/commands-features``` should be used as ```scaffolding``` for new commands. Therefore, new ```features``` should be detached from it.<br>
 ```utils/run-tests``` executes all ```.bats``` files stored in ```tests```.
