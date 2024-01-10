@@ -46,7 +46,7 @@ split() {
     local str="$1"
     local sep="$2"
     # To prevent circular reference
-    declare -n _split_fun_input=$3
+    local -n _split_fun_input=$3
     local first_in=1
     for i in $(seq ${#sep} 1 ${#str}); do
         local last_in=$((${i}-${#sep}))
@@ -75,15 +75,15 @@ require_confirmation() {
 sort_array() {
   # TODO: add -n option
   # To prevent circular reference
-  declare -n _sort_array_fun_input=$1
+  local -n _sort_array_fun_input=$1
   IFS=$'\n' _sort_array_fun_input=($(sort <<< "${_sort_array_fun_input[*]}"))
   unset IFS
 }
 
 clone_into() {
   # To prevent circular reference
-  declare -n _clone_into_fun_input=$1
-  declare -n _clone_into_fun_output=$2
+  local -n _clone_into_fun_input=$1
+  local -n _clone_into_fun_output=$2
   IFS=$'\n' _clone_into_fun_output=($(printf '%s\n' "${_clone_into_fun_input[@]}"))
   unset IFS
 }
@@ -91,7 +91,7 @@ clone_into() {
 # In-place
 drop_duplicates() {
   # To prevent circular reference
-  declare -n _drop_duplicates_fun_input=$1
+  local -n _drop_duplicates_fun_input=$1
   sort_array _drop_duplicates_fun_input
   local out=("${_drop_duplicates_fun_input[0]}")
   for i in $(seq 1 1 $((${#_drop_duplicates_fun_input[@]}-1))); do
@@ -105,7 +105,7 @@ drop_duplicates() {
 
 index_of() {
   # To prevent circular reference
-  declare -n _index_of_fun_input=$1
+  local -n _index_of_fun_input=$1
   local el="$2"
   for i in $(seq 0 1 $((${#_index_of_fun_input[@]}-1))); do
     if [[ "${el}" == "${_index_of_fun_input[i]}" ]]; then
