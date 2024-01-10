@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env -S bash -i
 
 root_dir="$(git rev-parse --show-toplevel)"
 tests_dir="${root_dir}/tests"
