@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env -S bash -i
 
 tmp_dir="/tmp/git-utils"
 installed_commands_basename=installed-commands
