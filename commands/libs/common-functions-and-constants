@@ -35,6 +35,9 @@ create_repo() {
         cd $1 &&
         git init &&
         git commit -m "initial commit" --allow-empty # Necessary for HEAD
+    if [[ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]]; then
+      git branch -m master
+    fi
 }
 
 # Simply 'echo' an array would not work, due to possible spaces in elements
