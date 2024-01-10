@@ -11,7 +11,7 @@ while getopts "m:r:w:p:" opt; do
 done
 shift $((OPTIND - 1))
 
-if [[ -v new_message ]] && [[ -v replace ]]; then
+if [[ ! -z "${new_message}" ]] && [[ ! -z "${replace}" ]]; then
   print_error "Both -m and -r (or -p) options are present"
   exit 1
 fi
@@ -29,7 +29,7 @@ for ref in ${raw_refs[@]}; do
   if [[ ${#toks[@]} > 1 ]]; then
     index1=$(index_of rev_list "$(git rev-parse ${toks[1]})")
   fi
-  if [[ -v index1 && index0 != index1 ]]; then
+  if [[ ! -z "${index1}" && index0 != index1 ]]; then
     if [[ ${index0} < ${index1} ]]; then
       print_error "'${ref}' is not a valid range"
       exit 1
@@ -46,7 +46,7 @@ indexes=($(echo ${indexes[@]} | sort -n))
 commit_new_message() {
   local curr="$(git rev-parse HEAD)"
   if [[ "${curr}" == "${ref}" ]]; then 
-    if [[ -v replace ]]; then 
+    if [[ ! -z "${replace}" ]]; then 
       new_message="$(git show --pretty=format:"%B" --no-patch ${curr} | sed 's|'"${replace}"'|'"${with}"'|g')"
     fi
     git commit --amend --allow-empty --no-edit -m "${new_message}"
