@@ -30,6 +30,8 @@ remove_repo() {
 }
 
 create_repo() {
+    git config --local user.name "$2"
+    git config --local user.email "$3"
     remove_repo $1
     mkdir -p $1 &&
         cd $1 &&
