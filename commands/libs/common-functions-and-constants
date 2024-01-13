@@ -32,12 +32,12 @@ remove_repo() {
 create_repo() {
     [[ -z "$2" ]] && name="default user" || name="$2"
     [[ -z "$3" ]] && email="default email" || email="$3"
-    git config --local user.name "${name}"
-    git config --local user.email "${email}"
     remove_repo $1
     mkdir -p $1 &&
         cd $1 &&
         git init &&
+        git config --local user.name "${name}" &&
+        git config --local user.email "${email}" &&
         git commit -m "initial commit" --allow-empty # Necessary for HEAD
     if [[ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]]; then
       git branch -m master
@@ -45,22 +45,27 @@ create_repo() {
 }
 
 # Simply 'echo' an array would not work, due to possible spaces in elements
+# As references are implemented by "names", those inside the functions must not
+# override those outside
 
 split() {
-    local str="$1"
-    local sep="$2"
-    # To prevent circular reference
-    local -n _split_fun_input=$3
-    local first_in=1
-    for i in $(seq ${#sep} 1 ${#str}); do
-        local last_in=$((${i}-${#sep}))
-        if [[ "$(expr substr "${str}" $((${last_in}+1)) ${#sep})" == "${sep}" ]]; then
-            _split_fun_input+=("$(expr substr "${str}" ${first_in} $((${last_in}-${first_in}+1)))")
-            first_in=$((${i}+1))
+    local _split_str="$1"
+    local _split_sep="$2"
+    local _split_output_arr_name=$3
+    local _split_str_len=${#_split_str}
+    local _split_sep_len=${#_split_sep}
+    local _split_first_in=0
+    local _split_j=0
+    for _split_i in $(seq ${_split_sep_len} 1 ${_split_str_len}); do
+        local _split_last_in=$((${_split_i}-${_split_sep_len}))
+        if [[ "${_split_str:_split_last_in+1:_split_sep_len}" == "${_split_sep}" ]]; then
+            eval ${_split_output_arr_name}[${_split_j}]="\"${_split_str:_split_first_in:_split_last_in-_split_first_in+1}\""
+            _split_j=$((${_split_j}+1))
+            _split_first_in=$((${_split_i}+1))
         fi
     done
-    if [[ ${first_in} != $((${#str}+1)) ]]; then
-        _split_fun_input+=("$(expr substr "${str}" ${first_in} $((${#str}-${first_in}+1)))")
+    if [[ ${_split_first_in} != $((${_split_str_len}+1)) ]]; then
+        eval ${_split_output_arr_name}[${_split_j}]="\"${_split_str:_split_first_in:_split_str_len-_split_first_in+1}\""
     fi
 }
 
@@ -75,45 +80,64 @@ require_confirmation() {
     done
 }
 
-# In-place
-sort_array() {
-  # TODO: add -n option
-  # To prevent circular reference
-  local -n _sort_array_fun_input=$1
-  IFS=$'\n' _sort_array_fun_input=($(sort <<< "${_sort_array_fun_input[*]}"))
-  unset IFS
+expand() {
+  local _expand_input_arr_name=$1
+  local _expand_input_arr_len=$(eval echo '${#'${_expand_input_arr_name}'[@]}')
+  for _expand_i in $(seq 0 1 $((${_expand_input_arr_len}-1))); do
+    echo "$(eval echo '${'${_expand_input_arr_name}'['${_expand_i}']}')"
+  done
 }
 
 clone_into() {
-  # To prevent circular reference
-  local -n _clone_into_fun_input=$1
-  local -n _clone_into_fun_output=$2
-  IFS=$'\n' _clone_into_fun_output=($(printf '%s\n' "${_clone_into_fun_input[@]}"))
+  local _clone_into_input_arr_name=$1
+  local _clone_into_output_arr_name=$2
+  eval 'unset '${_clone_into_output_arr_name}
+  IFS=$'\n'
+  local _clone_into_arr=($(expand ${_clone_into_input_arr_name}))
   unset IFS
+  for _clone_into_i in $(seq 0 1 $((${#_clone_into_arr[@]}-1))); do
+    eval ${_clone_into_output_arr_name}[${_clone_into_i}]="\"${_clone_into_arr[_clone_into_i]}\""
+  done
+}
+
+# In-place
+sort_array() {
+  # TODO: add -n option
+  local _sort_array_arr_name=$1
+  IFS=$'\n'
+  local _sort_array_arr=($(expand ${_sort_array_arr_name}))
+  _sort_array_sorted=($(sort <<< $(printf '%s\n' ${_sort_array_arr[@]})))
+  unset IFS
+  clone_into _sort_array_sorted "${_sort_array_arr_name}"
 }
 
 # In-place
 drop_duplicates() {
-  # To prevent circular reference
-  local -n _drop_duplicates_fun_input=$1
-  sort_array _drop_duplicates_fun_input
-  local out=("${_drop_duplicates_fun_input[0]}")
-  for i in $(seq 1 1 $((${#_drop_duplicates_fun_input[@]}-1))); do
-    if [[ "${_drop_duplicates_fun_input[i]}" == "${_drop_duplicates_fun_input[i-1]}" ]]; then
+  local _drop_duplicates_arr_name=$1
+  sort_array "${_drop_duplicates_arr_name}"
+  IFS=$'\n'
+  local _drop_duplicates_arr=($(expand ${_drop_duplicates_arr_name}))
+  unset IFS
+  local _drop_duplicates_out=("${_drop_duplicates_arr[0]}")
+  for _drop_duplicates_i in $(seq 1 1 $((${#_drop_duplicates_arr[@]}-1))); do
+    if [[ "${_drop_duplicates_arr[_drop_duplicates_i]}" == "${_drop_duplicates_arr[_drop_duplicates_i-1]}" ]]; then
       continue
     fi
-    out+=("${_drop_duplicates_fun_input[i]}")
+    _drop_duplicates_out+=("${_drop_duplicates_arr[_drop_duplicates_i]}")
   done
-  clone_into out _drop_duplicates_fun_input
+  clone_into _drop_duplicates_out "${_drop_duplicates_arr_name}"
 }
 
 index_of() {
   # To prevent circular reference
-  local -n _index_of_fun_input=$1
+  local _index_of_arr_name=$1
+  IFS=$'\n'
+  local _index_of_arr=($(expand ${_index_of_arr_name}))
+  unset IFS
   local el="$2"
-  for i in $(seq 0 1 $((${#_index_of_fun_input[@]}-1))); do
-    if [[ "${el}" == "${_index_of_fun_input[i]}" ]]; then
-      echo $i
+  for _index_of_i in $(seq 0 1 $((${#_index_of_arr[@]}-1))); do
+    if [[ "${el}" == "${_index_of_arr[_index_of_i]}" ]]; then
+      echo $_index_of_i
       return 0
     fi
   done
