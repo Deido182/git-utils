@@ -36,11 +36,15 @@ load test-template.bats
 }
 
 @test "test the sort_array function" {
-    # TODO: add test with -n option
     arr=(7 4 11 8 8 7 1)
     sort_array arr
     # They are strings by default
     ok=$([[ ${#arr[@]} == 7 && ${arr[@]} == "1 11 4 7 7 8 8" ]] && echo 1 || echo 0)
+    assert [ ${ok} -eq 1 ]
+
+    arr=(7 4 11 8 8 7 1)
+    sort_array -n arr
+    ok=$([[ ${#arr[@]} == 7 && ${arr[@]} == "1 4 7 7 8 8 11" ]] && echo 1 || echo 0)
     assert [ ${ok} -eq 1 ]
 
     arr=("Peter Parker" "Peter Paarker" "Peter Pabrker" "Peter Parker 2")
