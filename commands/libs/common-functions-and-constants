@@ -129,7 +129,6 @@ drop_duplicates() {
 }
 
 index_of() {
-  # To prevent circular reference
   local _index_of_arr_name=$1
   IFS=$'\n'
   local _index_of_arr=($(expand ${_index_of_arr_name}))
