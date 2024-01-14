@@ -4,8 +4,9 @@ while getopts "m:r:w:p:" opt; do
   case "${opt}" in
   m) export new_message="${OPTARG}" ;;
   r) export replace="${OPTARG}" ;; # As basic regex
-  p) export replace="^" ;& # Fall-through
   w) export with="${OPTARG}" ;;
+  p) export replace="^"
+     export with="${OPTARG}" ;;
   esac
 done
 shift $((OPTIND - 1))
