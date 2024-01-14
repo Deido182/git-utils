@@ -102,11 +102,19 @@ clone_into() {
 
 # In-place
 sort_array() {
-  # TODO: add -n option
+  OPTIND=1
+  local sort_opt=""
+  while getopts "n" opt; do
+    case "${opt}" in
+    n) sort_opt="${sort_opt}n" ;;
+    esac
+  done
+  [[ ${sort_opt} != "" ]] && sort_opt="-${sort_opt}"
+  shift $((OPTIND - 1))
   local _sort_array_arr_name=$1
   IFS=$'\n'
   local _sort_array_arr=($(expand ${_sort_array_arr_name}))
-  _sort_array_sorted=($(sort <<< $(printf '%s\n' ${_sort_array_arr[@]})))
+  _sort_array_sorted=($(sort ${sort_opt} <<< $(printf '%s\n' ${_sort_array_arr[@]})))
   unset IFS
   clone_into _sort_array_sorted "${_sort_array_arr_name}"
 }
