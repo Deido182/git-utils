@@ -15,7 +15,7 @@ shift $((OPTIND - 1))
 
 into="$1"
 
-. "$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/libs/common-functions-and-constants"
+. "$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )/libs/common-functions-and-constants"
 
 print_does_not_exist() {
 	print_warning "'$1' does not exist in '$2'"
