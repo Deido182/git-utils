@@ -15,7 +15,7 @@ if [[ -v new_message ]] && [[ -v replace ]]; then
   exit 1
 fi
 
-. "$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/libs/common-functions-and-constants"
+. "$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )/libs/common-functions-and-constants"
 
 raw_refs=$@
 rev_list=($(git rev-list HEAD))
