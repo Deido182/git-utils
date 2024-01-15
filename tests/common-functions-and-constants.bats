@@ -47,6 +47,11 @@ load test-template.bats
     ok=$([[ ${#arr[@]} == 7 && ${arr[@]} == "1 4 7 7 8 8 11" ]] && echo 1 || echo 0)
     assert [ ${ok} -eq 1 ]
 
+    arr=(7 4 11 8 8 7 1)
+    sort_array -nr arr
+    ok=$([[ ${#arr[@]} == 7 && ${arr[@]} == "11 8 8 7 7 4 1" ]] && echo 1 || echo 0)
+    assert [ ${ok} -eq 1 ]
+
     arr=("Peter Parker" "Peter Paarker" "Peter Pabrker" "Peter Parker 2")
     sort_array arr
     ok=$([[ ${#arr[@]} == 4 && ${arr[@]} == "Peter Paarker Peter Pabrker Peter Parker Peter Parker 2" ]] && echo 1 || echo 0)
