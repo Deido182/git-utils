@@ -49,7 +49,7 @@ move_here() {
 }
 
 drop_duplicates indexes
-indexes=($(echo ${indexes[@]} | sort -n | rev))
+sort_array -nr indexes
 
 initial_head="$(git rev-parse HEAD)"
 tmp_branch="_changemessage-tmp-branch-${RANDOM}"
