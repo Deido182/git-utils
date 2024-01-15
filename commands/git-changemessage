@@ -19,7 +19,9 @@ fi
 . "$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )/libs/common-functions-and-constants"
 
 raw_refs=$@
+IFS=$'\n'
 rev_list=($(git rev-list HEAD))
+unset IFS
 indexes=()
 
 for ref in ${raw_refs[@]}; do
