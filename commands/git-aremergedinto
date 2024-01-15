@@ -51,7 +51,7 @@ git remote update > /dev/null
 check_remote() {
 	local origin="$1"
 	local url=$(git remote get-url "${origin}")
-	if [[ $(git rev-parse --verify "${origin}/master" 2> /dev/null) == "" ]]; then
+	if [[ "$(git branch -r --list "${origin}/*" 2> /dev/null)" == "" ]]; then
 		print_error "'${url}' either cannot be accessed or does not exist"
 		return
 	fi
@@ -73,7 +73,9 @@ check_remote() {
 	done
 }
 
-remotes=$(git remote)
+IFS=$'\n'
+remotes=($(git remote))
+unset IFS
 for origin in ${remotes[@]}; do
 	if [[ ${multithreading_enabled} == true ]]; then
 		check_remote "${origin}" &
