@@ -51,7 +51,7 @@ move_here() {
 drop_duplicates indexes
 indexes=($(echo ${indexes[@]} | sort -n | rev))
 
-curr_head="$(git rev-parse HEAD)"
+initial_head="$(git rev-parse HEAD)"
 tmp_branch="_changemessage-tmp-branch-${RANDOM}"
 detach_from="${rev_list[indexes[0]]}^"
 git checkout "${detach_from}" -b "${tmp_branch}"
@@ -77,7 +77,7 @@ for j in $(seq ${indexes[0]} -1 0); do
   i=$((${i}+1))
 done
 
-git checkout "${curr_head}"
+git checkout "${initial_head}"
 git reset --hard "${detach_from}"
 
 move_here "${tmp_branch_first}..${tmp_branch}"
