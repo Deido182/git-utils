@@ -61,6 +61,10 @@ sort_array -n indexes
 
 for i in ${indexes[@]}; do
   export ref="${rev_list[i]}"
-  git rebase --keep-empty --allow-empty-message --rebase-merges "${ref}^" \
-    --exec 'bash -c "eval ${serialized_fun}"'
+  git rebase --keep-empty \
+    --allow-empty-message \
+    --rebase-merges \
+    --autostash \
+    --exec 'bash -c "eval ${serialized_fun}"' \
+    "${ref}^"
 done
