@@ -49,7 +49,7 @@ commit_new_message() {
     if [[ ! -z "${replace}" ]]; then 
       new_message="$(git show --pretty=format:"%B" --no-patch ${ref} | sed 's|'"${replace}"'|'"${with}"'|g')"
     fi
-    git commit --amend --allow-empty --no-edit -m "${new_message}"
+    git commit --amend --allow-empty --allow-empty-message --no-edit -m "${new_message}"
   fi
 }
 
@@ -61,6 +61,6 @@ sort_array -n indexes
 
 for i in ${indexes[@]}; do
   export ref="${rev_list[i]}"
-  git rebase --keep-empty --rebase-merges "${ref}^" \
+  git rebase --keep-empty --allow-empty-message --rebase-merges "${ref}^" \
     --exec 'bash -c "eval ${serialized_fun}"'
 done
