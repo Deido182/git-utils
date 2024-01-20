@@ -42,46 +42,25 @@ for ref in ${raw_refs[@]}; do
   indexes+=(${index0})
 done
 
-move_here() {
-  git cherry-pick \
-    --allow-empty \
-    --allow-empty-message \
-    --keep-redundant-commits \
-    "$1"
+
+commit_new_message() {
+  local curr="$(git rev-parse HEAD)"
+  if [[ "${curr}" == "${ref}" ]]; then 
+    if [[ ! -z "${replace}" ]]; then 
+      new_message="$(git show --pretty=format:"%B" --no-patch ${ref} | sed 's|'"${replace}"'|'"${with}"'|g')"
+    fi
+    git commit --amend --allow-empty --no-edit -m "${new_message}"
+  fi
 }
 
+printf -v serialized_fun '%q ' "$(declare -f commit_new_message); commit_new_message"
+export serialized_fun
+
 drop_duplicates indexes
-sort_array -nr indexes
+sort_array -n indexes
 
-initial_branch="$(git rev-parse --abbrev-ref HEAD)"
-tmp_branch="_changemessage-tmp-branch-${RANDOM}"
-detach_from="${rev_list[indexes[0]]}^"
-git checkout "${detach_from}" -b "${tmp_branch}"
-
-i=0
-for j in $(seq ${indexes[0]} -1 0); do
-  ref="${rev_list[j]}"
-  move_here "${ref}"
-
-  if [[ -z "${tmp_branch_first}" ]]; then 
-    tmp_branch_first="$(git rev-parse HEAD)"
-  fi
-
-  if [[ ${j} != ${indexes[i]} ]]; then
-    continue
-  fi
-
-  if [[ ! -z "${replace}" ]]; then 
-    new_message="$(git show --pretty=format:"%B" --no-patch ${ref} | sed 's|'"${replace}"'|'"${with}"'|g')"
-  fi
-  
-  git commit --amend --allow-empty --no-edit -m "${new_message}"
-  i=$((${i}+1))
+for i in ${indexes[@]}; do
+  export ref="${rev_list[i]}"
+  git rebase --keep-empty --rebase-merges "${ref}^" \
+    --exec 'bash -c "eval ${serialized_fun}"'
 done
-
-git checkout "${initial_branch}"
-git reset --hard "${detach_from}"
-
-move_here "${tmp_branch_first}..${tmp_branch}"
-
-git branch -D "${tmp_branch}"

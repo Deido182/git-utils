@@ -157,3 +157,76 @@ load test-template.bats
 	assert_failure
 	assert [ -z "$(git diff origin/develop)" ]
 }
+
+@test "fail appending a prefix to some commits, due to merge-commit involving conflicts in between" {
+	git checkout -b develop
+	git commit -m "commit 1" --allow-empty
+	echo "test content" > test_file
+	git add --all
+	git commit -m "commit 2"
+	git push -u origin develop
+
+	git checkout -b other1
+	git commit -m "commit 3" --allow-empty
+	echo "test content by other1" > test_file
+	git add --all
+	git commit -m "commit 4"
+
+	git checkout develop
+	git checkout -b other2
+	echo "other2 test content" > other_test_file
+	echo "test content by other2" > test_file
+	git add --all
+	git commit -m "commit 5"
+	git commit -m "commit 6" --allow-empty
+
+	git checkout develop
+	git merge other2 -X theirs -m "merge_other2"
+	echo "modified test content" > test_file
+	git add --all
+	git commit -m "commit 7"
+	git merge other1 -X theirs -m "merge_other1"
+
+	prefix="New prefix "
+	initial_head="$(git rev-parse HEAD)"
+	initial_branch="$(git rev-parse --abbrev-ref HEAD)"
+	run git changemessage -p "${prefix}" HEAD^
+
+	assert_failure
+}
+
+@test "append a prefix to some commits, even if there is a merge-commit in between" {
+	git checkout -b develop
+	git commit -m "commit 1" --allow-empty
+	echo "test content" > test_file
+	git add --all
+	git commit -m "commit 2"
+	git push -u origin develop
+
+	git checkout -b other1
+	git commit -m "commit 3" --allow-empty
+	echo "test content by other1" > test_file
+	git add --all
+	git commit -m "commit 4"
+
+	git checkout develop
+	echo "new file" > new_test_file
+	git add --all
+	git commit -m "commit 5"
+	git merge other1 --no-ff -m "merge_other1"
+	echo "modified test content" > test_file
+	git add --all
+	git commit -m "commit 6"
+
+	prefix="New prefix "
+	initial_head="$(git rev-parse HEAD)"
+	initial_branch="$(git rev-parse --abbrev-ref HEAD)"
+	git changemessage -p "${prefix}" HEAD^^..HEAD
+
+	assert_equal "$(git show HEAD --pretty=format:"%B" --no-patch)" "${prefix}commit 6"
+	assert_equal "$(git show HEAD^ --pretty=format:"%B" --no-patch)" "${prefix}merge_other1"
+	assert_equal "$(git show HEAD^^ --pretty=format:"%B" --no-patch)" "${prefix}commit 5"
+	assert_equal "$(git show HEAD^^^ --pretty=format:"%B" --no-patch)" "commit 2"
+	assert_equal "$(git diff HEAD ${initial_head})" ""
+	assert_equal "$(git rev-parse --abbrev-ref HEAD)" "${initial_branch}"
+}
