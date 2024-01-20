@@ -1,16 +1,27 @@
 #!/usr/bin/env bash
 
+. "$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )/libs/common-functions-and-constants"
+
 command=$1
 env=$2
+
+if [[ -z "${env}" ]]; then
+      print_error "No key specified"
+      exit 1  
+fi
+
 message="local-setup:${env}"
 if [[ "${command}" == "use" ]]; then
         stash="$(git stash list | grep ${message} | head -n 1)"
         if [[ -z "${stash}" ]]; then
-                echo "Local setup for '${env}' not found"
+                print_error "Local setup for '${env}' not found"
                 exit 1
         fi
         index="$(echo "${stash}" | sed 's/^stash@{//g' | sed 's/}.*$//g')"
         git stash apply --index ${index}
 elif [[ "${command}" == "save" ]]; then
         git stash push --include-untracked -m "${message}"
+else
+        print_error "'${command}' is not a valid action"
+        exit 1
 fi
