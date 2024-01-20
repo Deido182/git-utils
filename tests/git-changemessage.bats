@@ -249,3 +249,20 @@ load test-template.bats
 	assert_equal "$(git show HEAD^^ --pretty=format:"%B" --no-patch)" ""
 	assert_equal "$(git show HEAD^ --pretty=format:"%B" --no-patch)" ""
 }
+
+@test "change the message of the last commit in a dirty worktree" {
+	git checkout -b develop
+	last_message="last message"
+	git commit -m "${last_message}" --allow-empty
+	git push -u origin develop
+	old_last_matches=$([[ "$(git show HEAD --pretty=format:"%B" --no-patch)" == "${last_message}" ]] && echo 1 || echo 0)
+	assert [ ${old_last_matches} -eq 1 ]
+	echo "staged" > staged_file
+	git add --all
+	echo "not staged" > not_staged_file
+	assert_not_equal "$(git diff develop)" ""
+	new_message="New message"
+	git changemessage -m "${new_message}" HEAD
+	assert_equal "$(git show HEAD --pretty=format:"%B" --no-patch)" "${new_message}"
+	assert_not_equal "$(git diff develop)" ""
+}
