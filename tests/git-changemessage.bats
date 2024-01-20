@@ -230,3 +230,22 @@ load test-template.bats
 	assert_equal "$(git diff HEAD ${initial_head})" ""
 	assert_equal "$(git rev-parse --abbrev-ref HEAD)" "${initial_branch}"
 }
+
+@test "fill an empty message and then do the opposite" {
+	git checkout -b develop
+	git commit -m "commit 1" --allow-empty
+	git commit -m "" --allow-empty --allow-empty-message
+	git commit -m "" --allow-empty --allow-empty-message
+	git commit -m "commit 4" --allow-empty
+	git push -u origin develop
+	new_message="No longer empty"
+	git changemessage -m "${new_message}" HEAD^^..HEAD^^
+	
+	assert_equal "$(git show HEAD^^ --pretty=format:"%B" --no-patch)" "${new_message}"
+	assert_equal "$(git show HEAD^ --pretty=format:"%B" --no-patch)" ""
+
+	git changemessage -m "" HEAD^^ HEAD^
+	
+	assert_equal "$(git show HEAD^^ --pretty=format:"%B" --no-patch)" ""
+	assert_equal "$(git show HEAD^ --pretty=format:"%B" --no-patch)" ""
+}
