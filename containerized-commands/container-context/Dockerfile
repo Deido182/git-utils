@@ -4,7 +4,7 @@ ARG EMAIL="-"
 ARG NAME="-"
 ARG COMMANDS_DIR
 
-COPY -r ${COMMANDS_DIR}/* /bin/
+COPY ${COMMANDS_DIR}/* /bin/
 
 RUN apk upgrade \
     && apk update \
