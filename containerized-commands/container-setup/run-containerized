@@ -2,8 +2,9 @@
 
 REPO_DIR="$(git rev-parse --show-toplevel)"
 REPO_NAME="$(basename ${REPO_DIR})"
-CONTAINER_NAME="git-commands-container-${REPO_NAME}"
-CONTAINER_IMAGE_TAG="${CONTAINER_NAME}-image"
+CONTAINER_BASENAME="git-commands-container"
+CONTAINER_NAME="${CONTAINER_BASENAME}-${REPO_NAME}"
+CONTAINER_IMAGE_TAG="${CONTAINER_BASENAME}-image"
 CONTAINER_SETUP_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )"
 CONTAINER_CONTEXT="${CONTAINER_SETUP_DIR}/../container-context"
 
