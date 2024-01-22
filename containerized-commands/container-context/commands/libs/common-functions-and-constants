@@ -8,7 +8,7 @@ yellow_text='\033[0;33m'
 default_text='\033[0m'
 
 print_coloured() {
-	echo -e "$1$2"
+	echo -e "$1$2${default_text}"
 }
 
 print_warning() {
