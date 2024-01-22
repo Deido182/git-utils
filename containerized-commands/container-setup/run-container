@@ -10,6 +10,7 @@ docker build \
     --tag "${CONTAINER_IMAGE_TAG}" \
 	--build-arg EMAIL="$(git config --get user.email)" \
 	--build-arg NAME="$(git config --get user.name)" \
+	--build-arg COMMANDS_DIR="${COMMANDS_DIR}" \
 	"${CONTAINER_CONTEXT}"
 
 docker run \
