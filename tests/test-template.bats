@@ -16,9 +16,6 @@ user_email="test@name.com"
 
 # Run before each test; this function must be unique and all tests should source this file
 setup() {
-    DIR="$(cd "$(dirname "$BATS_TEST_FILENAME")" >/dev/null 2>&1 && pwd)"
-    # Make executables in commands/ visible to PATH
-    PATH="$DIR/../commands:$PATH"
     # To hide the installed ones (that are not the ones to be tested)
     if [[ -d "${root_dir}/${installed_commands_basename}" ]]; then
         mv "${root_dir}/${installed_commands_basename}" "${root_dir}/.${installed_commands_basename}"

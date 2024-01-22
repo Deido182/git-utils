@@ -8,7 +8,7 @@ CONTAINER_IMAGE_TAG="${CONTAINER_BASENAME}-image"
 CONTAINER_SETUP_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )"
 CONTAINER_CONTEXT="${CONTAINER_SETUP_DIR}/../container-context"
 
-if [ -z "$(docker images -q ${CONTAINER_IMAGE_TAG} 2> /dev/null)" ]; then
+if [[ -z "$(docker images -q ${CONTAINER_IMAGE_TAG} 2> /dev/null)" ]]; then
 	docker build \
 		--tag "${CONTAINER_IMAGE_TAG}" \
 		--build-arg EMAIL="$(git config --get user.email)" \

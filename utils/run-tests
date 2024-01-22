@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+containerized=false
+while getopts "c" opt; do
+  case "${opt}" in
+  c) containerized=true ;;
+  esac
+done
+shift $((OPTIND - 1))
+
 root_dir="$(git rev-parse --show-toplevel)"
 tests_dir="${root_dir}/tests"
 
@@ -8,12 +16,21 @@ git submodule add https://github.com/bats-core/bats-support.git ${tests_dir}/tes
 git submodule add https://github.com/bats-core/bats-assert.git ${tests_dir}/test_helper/bats-assert >/dev/null 2>&1
 git submodule update --init >/dev/null 2>&1
 
-which bash > /dev/null
-if [[ $? != 0 ]]; then
-    echo "ERROR: no 'bash' version installed"
-fi
+DIR="$(git rev-parse --show-toplevel)"
 
-bash_version=$(bash --version 2> /dev/null | head -n 1)
-echo "'bash' version the commands will be run and tested with:"
-echo "${bash_version}"
-${tests_dir}/bats/bin/bats ${tests_dir}
+if [[ "${containerized}" == "true" ]]; then
+    echo "Running tests with containerized-commands"
+    PATH="$DIR/containerized-commands:$PATH"
+else
+    PATH="$DIR/containerized-commands/container-context/commands:$PATH"
+    which bash > /dev/null
+    if [[ $? != 0 ]]; then
+        echo "ERROR: no 'bash' version installed"
+        exit 1
+    fi
+
+    bash_version=$(bash --version 2> /dev/null | head -n 1)
+    echo "'bash' version the commands will be run and tested with:"
+    echo "${bash_version}"
+    ${tests_dir}/bats/bin/bats ${tests_dir}
+fi
