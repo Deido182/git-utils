@@ -21,6 +21,8 @@ docker run \
 	--name="${CONTAINER_NAME}" \
 	--volume="${REPO_DIR}:/repo" \
 	"${CONTAINER_IMAGE_TAG}" \
-	$@
+	"$@"
+out=$?
 	
 docker rm "${CONTAINER_NAME}" >/dev/null 2>&1
+exit ${out}

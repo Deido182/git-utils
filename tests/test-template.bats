@@ -8,9 +8,10 @@
 curr_dir="$(pwd)"
 root_dir="$(git rev-parse --show-toplevel)"
 . "${root_dir}/containerized-commands/container-context/commands/libs/common-functions-and-constants"
+test_repos_dir="${root_dir}/tests/.repos"
 
-test_repo="${tmp_dir}/test-repo"
-mocked_remote="${tmp_dir}/mocked-remote"
+test_repo="${test_repos_dir}/test-repo"
+mocked_remote="${test_repos_dir}/mocked-remote"
 user_name="Test Name"
 user_email="test@name.com"
 

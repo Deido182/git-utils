@@ -32,5 +32,6 @@ else
     bash_version=$(bash --version 2> /dev/null | head -n 1)
     echo "'bash' version the commands will be run and tested with:"
     echo "${bash_version}"
-    ${tests_dir}/bats/bin/bats ${tests_dir}
 fi
+
+${tests_dir}/bats/bin/bats ${tests_dir}
