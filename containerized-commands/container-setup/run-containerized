@@ -13,8 +13,8 @@ docker build \
 	--build-arg COMMANDS_DIR="${COMMANDS_DIR}" \
 	"${CONTAINER_CONTEXT}"
 
-docker run \
+docker run -i \
 	--name="${CONTAINER_NAME}" \
 	--volume="$(git rev-parse --show-toplevel):/repo" \
 	"${CONTAINER_IMAGE_TAG}" \
-	$@
+	--exec "$@"
