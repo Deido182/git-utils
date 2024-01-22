@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+CONTAINER_NAME="git-commands-container"
+CONTAINER_IMAGE_TAG="${CONTAINER_NAME}-image"
+CONTAINER_SETUP_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )"
+CONTAINER_CONTEXT="${CONTAINER_SETUP_DIR}/../container-context"
+COMMANDS_DIR="${CONTAINER_SETUP_DIR}/../../commands"
+
+docker build \
+    --tag "${CONTAINER_IMAGE_TAG}" \
+	--build-arg EMAIL="$(git config --get user.email)" \
+	--build-arg NAME="$(git config --get user.name)" \
+	"${CONTAINER_CONTEXT}"
+
+docker run \
+	--name="${CONTAINER_NAME}" \
+	--volume="$(git rev-parse --show-toplevel):/repo" \
+	"${CONTAINER_IMAGE_TAG}" \
+	$@
