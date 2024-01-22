@@ -4,7 +4,8 @@ ARG EMAIL="-"
 ARG NAME="-"
 ARG COMMANDS_DIR
 
-COPY ${COMMANDS_DIR}/* /bin/
+COPY ${COMMANDS_DIR}/git-* /bin
+COPY ${COMMANDS_DIR}/libs /bin/libs
 
 RUN apk upgrade \
     && apk update \

@@ -1,20 +1,25 @@
 #!/usr/bin/env bash
 
-CONTAINER_NAME="git-commands-container"
+REPO_DIR="$(git rev-parse --show-toplevel)"
+REPO_NAME="$(basename ${REPO_DIR})"
+CONTAINER_NAME="git-commands-container-${REPO_NAME}"
 CONTAINER_IMAGE_TAG="${CONTAINER_NAME}-image"
 CONTAINER_SETUP_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )"
 CONTAINER_CONTEXT="${CONTAINER_SETUP_DIR}/../container-context"
-COMMANDS_DIR="${CONTAINER_SETUP_DIR}/../../commands"
 
-docker build \
-    --tag "${CONTAINER_IMAGE_TAG}" \
-	--build-arg EMAIL="$(git config --get user.email)" \
-	--build-arg NAME="$(git config --get user.name)" \
-	--build-arg COMMANDS_DIR="${COMMANDS_DIR}" \
-	"${CONTAINER_CONTEXT}"
+if [ -z "$(docker images -q ${CONTAINER_IMAGE_TAG} 2> /dev/null)" ]; then
+	docker build \
+		--tag "${CONTAINER_IMAGE_TAG}" \
+		--build-arg EMAIL="$(git config --get user.email)" \
+		--build-arg NAME="$(git config --get user.name)" \
+		--build-arg COMMANDS_DIR="commands" \
+		"${CONTAINER_CONTEXT}" >/dev/null 2>&1
+fi
 
-docker run -i \
+docker run \
 	--name="${CONTAINER_NAME}" \
-	--volume="$(git rev-parse --show-toplevel):/repo" \
+	--volume="${REPO_DIR}:/repo" \
 	"${CONTAINER_IMAGE_TAG}" \
-	--exec "$@"
+	$@
+	
+docker rm "${CONTAINER_NAME}" >/dev/null 2>&1
