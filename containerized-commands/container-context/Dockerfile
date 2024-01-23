@@ -13,12 +13,12 @@ RUN apk upgrade \
     && apk add grep=3.7-r0 \
     && apk add sed=4.8-r0 \
     && mkdir /repo \
-    && git config --local --add safe.directory /repo \
-    && git config --local user.email "${EMAIL}" \
-    && git config --local user.name "${NAME}"
+    && git config --global --add safe.directory /repo \
+    && git config --global user.email "${EMAIL}" \
+    && git config --global user.name "${NAME}"
 
 RUN find /commands -type f \
     -exec sed 's|\r||g' {} > {} \; \
-    dos2unix {} \;
+    -exec dos2unix {} \;
 
 WORKDIR /repo
