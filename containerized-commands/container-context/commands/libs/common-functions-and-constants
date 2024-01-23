@@ -34,7 +34,6 @@ create_repo() {
     [[ -z "$3" ]] && email="default email" || email="$3"
     remove_repo "$1"
     mkdir -p "$1" &&
-        cd "/" &&
         cd "$1" &&
         git init &&
         git config --local user.name "${name}" &&
