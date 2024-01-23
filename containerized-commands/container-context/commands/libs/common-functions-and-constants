@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-tmp_dir="/tmp/git-utils"
+tmp_dir="/tmp"
 installed_commands_basename=installed-commands
 red_text='\033[0;31m'
 green_text='\033[0;32m'
@@ -111,7 +111,7 @@ sort_array() {
   shift $((OPTIND - 1))
   local _sort_array_arr_name=$1
   IFS=$'\n'
-  sort_array_tmp_file=/tmp/git-utils/sort_array-tmp-file
+  sort_array_tmp_file="${tmp_dir}/sort_array-tmp-file"
   expand ${_sort_array_arr_name} > "${sort_array_tmp_file}"
   _sort_array_sorted=($(sort ${sort_opt} -f "${sort_array_tmp_file}"))
   rm "${sort_array_tmp_file}"
