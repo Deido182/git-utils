@@ -19,6 +19,6 @@ RUN apk upgrade \
 
 RUN find /commands -type f \
     -exec sed 's|\r||g' {} > {} \; \
-    dos2unix {} \;
+    -exec dos2unix {} \;
 
 WORKDIR /repo
