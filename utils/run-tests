@@ -16,13 +16,13 @@ git submodule add https://github.com/bats-core/bats-support.git ${tests_dir}/tes
 git submodule add https://github.com/bats-core/bats-assert.git ${tests_dir}/test_helper/bats-assert >/dev/null 2>&1
 git submodule update --init >/dev/null 2>&1
 
-DIR="$(git rev-parse --show-toplevel)"
+root_dir="$(git rev-parse --show-toplevel)"
 
 if [[ "${containerized}" == "true" ]]; then
     echo "Running tests with containerized-commands"
-    export PATH="$DIR/containerized-commands:$PATH"
+    export PATH="${root_dir}/containerized-commands:$PATH"
 else
-    export PATH="$DIR/containerized-commands/container-context/commands:$PATH"
+    export PATH="${root_dir}/containerized-commands/container-context/commands:$PATH"
     which bash > /dev/null
     if [[ $? != 0 ]]; then
         echo "ERROR: no 'bash' version installed"

@@ -4,21 +4,20 @@ ARG EMAIL="-"
 ARG NAME="-"
 ARG COMMANDS_DIR
 
-COPY ${COMMANDS_DIR}/git-* /bin
-COPY ${COMMANDS_DIR}/libs /bin/libs
+COPY ${COMMANDS_DIR} /commands
 
 RUN apk upgrade \
     && apk update \
-    && apk add 'bash>=3.2.57' \
-    && apk add 'git>=2.25.1' \
-    && apk add 'grep>=3.4' \
-    && apk add 'sed>=4.7' \
+    && apk add 'bash=5.1.16(1)-release' \
+    && apk add 'git=2.32.7' \
+    && apk add 'grep=3.7' \
+    && apk add 'sed=4.8' \
     && mkdir /repo \
     && git config --global --add safe.directory /repo \
     && git config --global user.email "${EMAIL}" \
     && git config --global user.name "${NAME}"
 
 # Remove possible special characters (e.g., \r)
-RUN find ${COMMANDS_DIR} -type f -exec sed $'s|[^[:print:]\t]||g' {} \;
+RUN find /commands -type f -exec sed $'s|[^[:print:]\t]||g' {} \;
 
 WORKDIR /repo
