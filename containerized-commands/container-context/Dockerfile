@@ -8,10 +8,10 @@ COPY ${COMMANDS_DIR} /commands
 
 RUN apk upgrade \
     && apk update \
-    && apk add 'bash=5.1.16(1)-release' \
-    && apk add 'git=2.32.7' \
-    && apk add 'grep=3.7' \
-    && apk add 'sed=4.8' \
+    && apk add bash=5.1.16-r0 \
+    && apk add git=2.32.7-r0 \
+    && apk add grep=3.7-r0 \
+    && apk add sed=4.8-r0 \
     && mkdir /repo \
     && git config --global --add safe.directory /repo \
     && git config --global user.email "${EMAIL}" \
