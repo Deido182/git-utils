@@ -20,9 +20,9 @@ DIR="$(git rev-parse --show-toplevel)"
 
 if [[ "${containerized}" == "true" ]]; then
     echo "Running tests with containerized-commands"
-    PATH="$DIR/containerized-commands:$PATH"
+    export PATH="$DIR/containerized-commands:$PATH"
 else
-    PATH="$DIR/containerized-commands/container-context/commands:$PATH"
+    export PATH="$DIR/containerized-commands/container-context/commands:$PATH"
     which bash > /dev/null
     if [[ $? != 0 ]]; then
         echo "ERROR: no 'bash' version installed"
