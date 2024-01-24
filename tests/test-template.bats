@@ -8,10 +8,10 @@
 curr_dir="$(pwd)"
 root_dir="$(git rev-parse --show-toplevel)"
 . "${root_dir}/containerized-commands/container-context/commands/libs/common-functions-and-constants"
-test_repos_dir="/home/$(whoami)/.git-utils-mocked-repos"
+test_repos_dir=~/.git-utils-mocked-repos
 
-test_repo="${test_repos_dir}/test-repo"
-mocked_remote="${test_repos_dir}/mocked-remote"
+test_repo=${test_repos_dir}/test-repo
+mocked_remote=${test_repos_dir}/mocked-remote
 user_name="Test Name"
 user_email="test@name.com"
 
@@ -23,10 +23,10 @@ setup() {
     fi
 
     # Setup new test-repo
-    create_repo "${test_repo}" "${user_name}" "${user_email}"
+    create_repo ${test_repo} "${user_name}" "${user_email}"
     cd ${curr_dir}
     # Add mocked remote
-    create_repo "${mocked_remote}" "${user_name}" "${user_email}"
+    create_repo ${mocked_remote} "${user_name}" "${user_email}"
     git config receive.denyCurrentBranch ignore
     cd ${test_repo}
     git remote add origin "file://${mocked_remote}/.git"
