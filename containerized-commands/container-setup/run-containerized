@@ -17,11 +17,26 @@ if [[ -z "$(docker images -q ${CONTAINER_IMAGE_TAG} 2> /dev/null)" ]]; then
 		"${CONTAINER_CONTEXT}" >/dev/null 2>&1
 fi
 
+serialize() {
+	params=("$@")
+	local out="${params[0]}"
+	for i in $(seq 1 1 $((${#params[@]}-1))); do
+		if [[ "${params[i]}" == *[[:space:]]* ]]; then
+			out="${out} \"${params[i]}\""
+		else 
+			out="${out} ${params[i]}"
+		fi
+	done
+	echo "${out}"
+}
+
+serialized_params="$(serialize "$@")"
+
 docker run \
 	--name="${CONTAINER_NAME}" \
 	--volume="${REPO_DIR}:/repo" \
 	"${CONTAINER_IMAGE_TAG}" \
-	"$@"
+	bash -c "${serialized_params}"
 out=$?
 	
 docker rm "${CONTAINER_NAME}" >/dev/null 2>&1
