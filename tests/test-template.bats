@@ -24,9 +24,14 @@ setup() {
 
     # Setup new test-repo
     create_repo ${test_repo} "${user_name}" "${user_email}"
-    cd ${curr_dir}
+    if [[ $? != 0 ]]; then
+        exit 1
+    fi
     # Add mocked remote
     create_repo ${mocked_remote} "${user_name}" "${user_email}"
+    if [[ $? != 0 ]]; then
+        exit 1
+    fi
     git config receive.denyCurrentBranch ignore
     cd ${test_repo}
     git remote add origin "file://${mocked_remote}/.git"
