@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-tmp_dir="/tmp/git-utils"
+tmp_dir="/tmp"
 installed_commands_basename=installed-commands
 red_text='\033[0;31m'
 green_text='\033[0;32m'
@@ -8,7 +8,7 @@ yellow_text='\033[0;33m'
 default_text='\033[0m'
 
 print_coloured() {
-	echo -e "$1$2"
+	echo -e "$1$2${default_text}"
 }
 
 print_warning() {
@@ -24,7 +24,7 @@ print_success() {
 }
 
 remove_repo() {
-    if [ -d "$1" ]; then
+    if [ -d $1 ]; then
         yes | rm -r $1
     fi
 }
@@ -104,17 +104,17 @@ clone_into() {
 sort_array() {
   OPTIND=1
   local sort_opt=""
-  while getopts "n" opt; do
-    case "${opt}" in
-    n) sort_opt="${sort_opt}n" ;;
-    esac
+  while getopts "nr" opt; do
+    sort_opt="${sort_opt}${opt}"
   done
   [[ ${sort_opt} != "" ]] && sort_opt="-${sort_opt}"
   shift $((OPTIND - 1))
   local _sort_array_arr_name=$1
   IFS=$'\n'
-  local _sort_array_arr=($(expand ${_sort_array_arr_name}))
-  _sort_array_sorted=($(sort ${sort_opt} <<< $(printf '%s\n' ${_sort_array_arr[@]})))
+  sort_array_tmp_file="${tmp_dir}/sort_array-tmp-file"
+  expand ${_sort_array_arr_name} > "${sort_array_tmp_file}"
+  _sort_array_sorted=($(sort ${sort_opt} -f "${sort_array_tmp_file}"))
+  rm "${sort_array_tmp_file}"
   unset IFS
   clone_into _sort_array_sorted "${_sort_array_arr_name}"
 }
