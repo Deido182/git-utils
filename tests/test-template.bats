@@ -8,7 +8,7 @@
 curr_dir="$(pwd)"
 root_dir="$(git rev-parse --show-toplevel)"
 . "${root_dir}/containerized-commands/container-context/commands/libs/common-functions-and-constants"
-test_repos_dir=~/.git-utils-mocked-repos
+test_repos_dir="${tmp_dir}/.git-utils-mocked-repos"
 
 test_repo=${test_repos_dir}/test-repo
 mocked_remote=${test_repos_dir}/mocked-remote
