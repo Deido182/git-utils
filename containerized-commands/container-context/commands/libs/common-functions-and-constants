@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-tmp_dir="/var/tmp"
+# /var/tmp is not cleaned up on reboot (it matters for containers)
+tmp_dir="$([[ -d /var/tmp ]] && echo /var/tmp || mkdir ~/.git-utils-tmp-dir && echo ~/.git-utils-tmp-dir)"
 installed_commands_basename=installed-commands
 red_text='\033[0;31m'
 green_text='\033[0;32m'
@@ -24,17 +25,17 @@ print_success() {
 }
 
 remove_repo() {
-    if [ -d $1 ]; then
-        yes | rm -r $1
+    if [ -d "$1" ]; then
+        yes | rm -r "$1"
     fi
 }
 
 create_repo() {
     [[ -z "$2" ]] && name="default user" || name="$2"
     [[ -z "$3" ]] && email="default email" || email="$3"
-    remove_repo $1
-    mkdir -p $1 &&
-        cd $1 &&
+    remove_repo "$1"
+    mkdir -p "$1" &&
+        cd "$1" &&
         git init &&
         git config --local user.name "${name}" &&
         git config --local user.email "${email}" &&

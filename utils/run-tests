@@ -21,6 +21,7 @@ root_dir="$(git rev-parse --show-toplevel)"
 if [[ "${containerized}" == "true" ]]; then
     echo "Running tests with containerized-commands"
     export PATH="${root_dir}/containerized-commands:$PATH"
+    docker rmi git-commands-container-image
 else
     export PATH="${root_dir}/containerized-commands/container-context/commands:$PATH"
     which bash > /dev/null
