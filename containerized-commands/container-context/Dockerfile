@@ -6,6 +6,8 @@ ARG COMMANDS_DIR
 
 COPY ${COMMANDS_DIR} /commands
 
+ENV PATH="/commands:${PATH}"
+
 RUN apk upgrade \
     && apk update \
     && apk add bash=5.1.16-r0 \

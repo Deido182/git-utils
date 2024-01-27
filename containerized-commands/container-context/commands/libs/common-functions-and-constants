@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-tmp_dir="/tmp"
+tmp_dir="/var/tmp"
 installed_commands_basename=installed-commands
 red_text='\033[0;31m'
 green_text='\033[0;32m'
