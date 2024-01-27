@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # /var/tmp is not cleaned up on reboot (it matters for containers)
-tmp_dir="$([[ -d /var/tmp ]] && echo /var/tmp || mkdir ~/.git-utils-tmp-dir && echo ~/.git-utils-tmp-dir)"
+tmp_dir="$([[ -d /var/tmp ]] && echo /var/tmp || echo $(mkdir ~/.git-utils-tmp-dir >/dev/null 2>&1; echo ~/.git-utils-tmp-dir))"
 installed_commands_basename=installed-commands
 red_text='\033[0;31m'
 green_text='\033[0;32m'
