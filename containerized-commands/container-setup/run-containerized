@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+. "$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )/../container-context/commands/libs/common-functions-and-constants"
+
 REPO_DIR="$(git rev-parse --show-toplevel)"
 REPO_NAME="$(basename ${REPO_DIR})"
 CONTAINER_BASENAME="git-commands-container"
@@ -32,9 +34,12 @@ serialize() {
 
 serialized_params="$(serialize "$@")"
 
+# tmp_dir shared to make it testable through mocked repos on host file uri (file://)
+# Not that good, I agree
 docker run \
 	--name="${CONTAINER_NAME}" \
 	--volume="${REPO_DIR}:/repo" \
+	--volume="${tmp_dir}:${tmp_dir}" \
 	"${CONTAINER_IMAGE_TAG}" \
 	bash -c "${serialized_params}"
 out=$?
