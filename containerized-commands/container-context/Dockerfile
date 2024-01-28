@@ -16,10 +16,11 @@ WORKDIR /repo
 # This order of layers, to leverage "cache"
 ARG EMAIL
 ARG NAME
-ARG COMMANDS_DIR
 
 RUN git config --global user.email "${EMAIL:--}" \
     && git config --global user.name "${NAME:--}"
+
+ARG COMMANDS_DIR
 
 COPY ${COMMANDS_DIR} /commands
 
