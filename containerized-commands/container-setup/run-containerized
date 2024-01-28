@@ -39,6 +39,7 @@ serialized_params="$(serialize "$@")"
 docker run \
 	--name="${CONTAINER_NAME}" \
 	--volume="${REPO_DIR}:/repo" \
+	--volume="$(echo ~/.ssh):/.ssh" \
 	--volume="${tmp_dir}:${tmp_dir}" \
 	"${CONTAINER_IMAGE_TAG}" \
 	bash -c "${serialized_params}"
