@@ -10,8 +10,9 @@ CONTAINER_IMAGE_TAG="${CONTAINER_BASENAME}-image"
 CONTAINER_SETUP_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )"
 CONTAINER_CONTEXT="${CONTAINER_SETUP_DIR}/../container-context"
 
+# "--cache-from" used like this should be the default, anyway
 docker build \
-	--cache-from "${CONTAINER_IMAGE_TAG}" \ # It should be by default, anyway
+	--cache-from "${CONTAINER_IMAGE_TAG}" \
 	--tag "${CONTAINER_IMAGE_TAG}" \
 	--build-arg EMAIL="$(git config --get user.email)" \
 	--build-arg NAME="$(git config --get user.name)" \
