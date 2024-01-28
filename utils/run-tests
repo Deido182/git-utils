@@ -10,17 +10,19 @@ shift $((OPTIND - 1))
 
 root_dir="$(git rev-parse --show-toplevel)"
 tests_dir="${root_dir}/tests"
+containerized_only_tag="tag:containerized-only"
+bats_options="--filter-tags !${containerized_only_tag}"
 
 git submodule add https://github.com/bats-core/bats-core.git ${tests_dir}/bats >/dev/null 2>&1
 git submodule add https://github.com/bats-core/bats-support.git ${tests_dir}/test_helper/bats-support >/dev/null 2>&1
 git submodule add https://github.com/bats-core/bats-assert.git ${tests_dir}/test_helper/bats-assert >/dev/null 2>&1
 git submodule update --init >/dev/null 2>&1
 
-root_dir="$(git rev-parse --show-toplevel)"
-
 if [[ "${containerized}" == "true" ]]; then
     echo "Running tests with containerized-commands"
     export PATH="${root_dir}/containerized-commands:$PATH"
+    # Include all
+    unset bats_options
 else
     export PATH="${root_dir}/containerized-commands/container-context/commands:$PATH"
     which bash > /dev/null
@@ -34,4 +36,4 @@ else
     echo "${bash_version}"
 fi
 
-${tests_dir}/bats/bin/bats ${tests_dir}
+${tests_dir}/bats/bin/bats ${bats_options} ${tests_dir}
