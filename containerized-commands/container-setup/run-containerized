@@ -14,6 +14,7 @@ CONTAINER_CONTEXT="${CONTAINER_SETUP_DIR}/../container-context"
 docker build \
 	--cache-from "${CONTAINER_IMAGE_TAG}" \
 	--tag "${CONTAINER_IMAGE_TAG}" \
+	--build-arg SSH_DIR="$(echo ~/.ssh)" \
 	--build-arg EMAIL="$(git config --get user.email)" \
 	--build-arg NAME="$(git config --get user.name)" \
 	--build-arg COMMANDS_DIR="commands" \
@@ -39,7 +40,6 @@ serialized_params="$(serialize "$@")"
 docker run \
 	--name="${CONTAINER_NAME}" \
 	--volume="${REPO_DIR}:/repo" \
-	--volume="$(echo ~/.ssh):/root/.ssh" \
 	--volume="${tmp_dir}:${tmp_dir}" \
 	"${CONTAINER_IMAGE_TAG}" \
 	bash -c "${serialized_params}"

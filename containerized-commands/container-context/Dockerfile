@@ -9,19 +9,27 @@ RUN apk upgrade \
     && apk add grep=3.7-r0 \
     && apk add sed=4.8-r0 \
     && apk add openssh \
-    && find /root/.ssh -type f ! -name "*.pub" ! -name "known_hosts*" -exec ssh-add {} \; \
     && mkdir /repo \
     && git config --global --add safe.directory /repo
 
 WORKDIR /repo
 
-# This order of layers, to leverage "cache"
+# This order of layers, to leverage "caching"
+# ssh-config
+ARG SSH_DIR
+
+COPY ${SSH_DIR} /root/.ssh
+
+RUN find /root/.ssh -type f ! -name "*.pub" ! -name "known_hosts*" -exec ssh-add {} \;
+
+# repo-config
 ARG EMAIL
 ARG NAME
 
 RUN git config --global user.email "${EMAIL:--}" \
     && git config --global user.name "${NAME:--}"
 
+# commands
 ARG COMMANDS_DIR
 
 COPY ${COMMANDS_DIR} /commands
