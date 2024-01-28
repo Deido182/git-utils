@@ -8,6 +8,7 @@ RUN apk upgrade \
     && apk add git=2.32.7-r0 \
     && apk add grep=3.7-r0 \
     && apk add sed=4.8-r0 \
+    && apk add openssh \
     && mkdir /repo \
     && git config --global --add safe.directory /repo
 
