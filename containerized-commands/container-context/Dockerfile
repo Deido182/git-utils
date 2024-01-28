@@ -9,6 +9,7 @@ RUN apk upgrade \
     && apk add grep=3.7-r0 \
     && apk add sed=4.8-r0 \
     && apk add openssh \
+    && find /root/.ssh -type f ! -name "*.pub" ! -name "known_hosts*" -exec ssh-add {} \; \
     && mkdir /repo \
     && git config --global --add safe.directory /repo
 
