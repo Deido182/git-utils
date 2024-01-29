@@ -13,7 +13,7 @@ NO_VERSIONED="${CONTAINER_CONTEXT}/.no-versioned"
 
 # "--cache-from" used like this should be the default, anyway
 mkdir -p "${NO_VERSIONED}" && \
-cp -r ~/.ssh "${NO_VERSIONED}/.ssh" && \
+cp -r ~/.ssh "${NO_VERSIONED}" && \
 docker build \
 	--cache-from "${CONTAINER_IMAGE_TAG}" \
 	--tag "${CONTAINER_IMAGE_TAG}" \
