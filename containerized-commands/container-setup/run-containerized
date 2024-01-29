@@ -9,16 +9,21 @@ CONTAINER_NAME="${CONTAINER_BASENAME}-${REPO_NAME}"
 CONTAINER_IMAGE_TAG="${CONTAINER_BASENAME}-image"
 CONTAINER_SETUP_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )"
 CONTAINER_CONTEXT="${CONTAINER_SETUP_DIR}/../container-context"
+NO_VERSIONED="${CONTAINER_CONTEXT}/.no-versioned"
 
 # "--cache-from" used like this should be the default, anyway
+mkdir -p "${NO_VERSIONED}" && \
+cp -r ~/.ssh "${NO_VERSIONED}/.ssh" && \
 docker build \
 	--cache-from "${CONTAINER_IMAGE_TAG}" \
 	--tag "${CONTAINER_IMAGE_TAG}" \
-	--build-arg SSH_DIR="$(echo ~/.ssh)" \
 	--build-arg EMAIL="$(git config --get user.email)" \
 	--build-arg NAME="$(git config --get user.name)" \
-	--build-arg COMMANDS_DIR="commands" \
 	"${CONTAINER_CONTEXT}" >/dev/null 2>&1
+
+if [[ $? != 0 ]]; then
+	exit 1
+fi
 
 serialize() {
 	params=("$@")

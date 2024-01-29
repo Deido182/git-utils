@@ -16,11 +16,10 @@ WORKDIR /repo
 
 # This order of layers, to leverage "caching"
 # ssh-config
-ARG SSH_DIR
+COPY .no-versioned/.ssh /root
 
-COPY ${SSH_DIR} /root/.ssh
-
-RUN find /root/.ssh -type f ! -name "*.pub" ! -name "known_hosts*" -exec ssh-add {} \;
+RUN eval $(ssh-agent -s) \
+    && find /root/.ssh -type f ! -name "*.pub" ! -name "known_hosts*" -exec ssh-add {} \;
 
 # repo-config
 ARG EMAIL
@@ -30,9 +29,7 @@ RUN git config --global user.email "${EMAIL:--}" \
     && git config --global user.name "${NAME:--}"
 
 # commands
-ARG COMMANDS_DIR
-
-COPY ${COMMANDS_DIR} /commands
+COPY commands /commands
 
 RUN find /commands -type f \
     -exec sed 's|\r||g' {} > {} \; \
