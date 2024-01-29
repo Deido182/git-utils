@@ -23,6 +23,16 @@ if [[ "${containerized}" == "true" ]]; then
     export PATH="${root_dir}/containerized-commands:$PATH"
     # Include all
     unset bats_options
+    test_container_image="git-commands-test-container-image"
+    docker build \
+	    --tag "${test_container_image}" \
+	    --file "${root_dir}/tests/Dockerfile" \
+	    "${root_dir}" \
+    && docker run \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v "/var/tmp:/var/tmp" \
+        "${test_container_image}" \
+        bash -c "tests/bats/bin/bats tests"
 else
     export PATH="${root_dir}/containerized-commands/container-context/commands:$PATH"
     which bash > /dev/null
@@ -34,6 +44,8 @@ else
     bash_version=$(bash --version 2> /dev/null | head -n 1)
     echo "'bash' version the commands will be run and tested with:"
     echo "${bash_version}"
+
+    ${tests_dir}/bats/bin/bats ${bats_options} ${tests_dir}
 fi
 
-${tests_dir}/bats/bin/bats ${bats_options} ${tests_dir}
+
