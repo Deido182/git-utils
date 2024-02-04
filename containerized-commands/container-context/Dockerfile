@@ -1,9 +1,6 @@
 FROM alpine:3.14
 
 # This order of layers, to leverage "caching"
-ENV PATH="/commands:${PATH}"
-ENV SSH_AUTH_SOCK="/ssh.socket"
-
 RUN apk upgrade \
     && apk update \
     && apk add bash=5.1.16-r0 \
@@ -13,6 +10,9 @@ RUN apk upgrade \
     && apk add openssh \
     && mkdir /repo \
     && git config --global --add safe.directory /repo
+
+ENV PATH="/commands:${PATH}"
+ENV SSH_AUTH_SOCK="/ssh.socket"
 
 WORKDIR /repo
 
