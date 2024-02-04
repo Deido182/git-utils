@@ -16,8 +16,11 @@ docker build \
 	--tag "${CONTAINER_IMAGE_TAG}" \
 	--build-arg EMAIL="$(git config --get user.email)" \
 	--build-arg NAME="$(git config --get user.name)" \
-	--build-arg COMMANDS_DIR="commands" \
 	"${CONTAINER_CONTEXT}" >/dev/null 2>&1
+
+if [[ $? != 0 ]]; then
+	exit 1
+fi
 
 serialize() {
 	params=("$@")
@@ -40,6 +43,7 @@ docker run \
 	--name="${CONTAINER_NAME}" \
 	--volume="${REPO_DIR}:/repo" \
 	--volume="${tmp_dir}:${tmp_dir}" \
+	--volume="${SSH_AUTH_SOCK}:/ssh.socket" \
 	"${CONTAINER_IMAGE_TAG}" \
 	bash -c "${serialized_params}"
 out=$?
