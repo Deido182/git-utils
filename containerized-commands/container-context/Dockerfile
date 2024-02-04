@@ -1,6 +1,8 @@
 FROM alpine:3.14
 
+# This order of layers, to leverage "caching"
 ENV PATH="/commands:${PATH}"
+ENV SSH_AUTH_SOCK="/ssh.socket"
 
 RUN apk upgrade \
     && apk update \
@@ -13,13 +15,6 @@ RUN apk upgrade \
     && git config --global --add safe.directory /repo
 
 WORKDIR /repo
-
-# This order of layers, to leverage "caching"
-# ssh-config
-COPY .no-versioned/.ssh /root
-
-RUN eval $(ssh-agent -s) \
-    && find /root/.ssh -type f ! -name "*.pub" ! -name "known_hosts*" -exec ssh-add {} \;
 
 # repo-config
 ARG EMAIL

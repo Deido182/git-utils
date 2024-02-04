@@ -9,11 +9,8 @@ CONTAINER_NAME="${CONTAINER_BASENAME}-${REPO_NAME}"
 CONTAINER_IMAGE_TAG="${CONTAINER_BASENAME}-image"
 CONTAINER_SETUP_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )"
 CONTAINER_CONTEXT="${CONTAINER_SETUP_DIR}/../container-context"
-NO_VERSIONED="${CONTAINER_CONTEXT}/.no-versioned"
 
 # "--cache-from" used like this should be the default, anyway
-mkdir -p "${NO_VERSIONED}" && \
-cp -r ~/.ssh "${NO_VERSIONED}" && \
 docker build \
 	--cache-from "${CONTAINER_IMAGE_TAG}" \
 	--tag "${CONTAINER_IMAGE_TAG}" \
@@ -46,6 +43,7 @@ docker run \
 	--name="${CONTAINER_NAME}" \
 	--volume="${REPO_DIR}:/repo" \
 	--volume="${tmp_dir}:${tmp_dir}" \
+	--volume="${SSH_AUTH_SOCK}:/ssh.socket" \
 	"${CONTAINER_IMAGE_TAG}" \
 	bash -c "${serialized_params}"
 out=$?
