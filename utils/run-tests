@@ -18,7 +18,6 @@ git submodule update --init >/dev/null 2>&1
 
 if [[ "${containerized}" == "true" ]]; then
     echo "Running tests with containerized-commands"
-    export PATH="${root_dir}/containerized-commands:$PATH"
     test_container_image="git-commands-test-container-image"
     docker build \
         --no-cache \
