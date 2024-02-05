@@ -10,8 +10,6 @@ shift $((OPTIND - 1))
 
 root_dir="$(git rev-parse --show-toplevel)"
 tests_dir="${root_dir}/tests"
-containerized_only_tag="tag:containerized-only"
-bats_options="--filter-tags !${containerized_only_tag}"
 
 git submodule add https://github.com/bats-core/bats-core.git ${tests_dir}/bats >/dev/null 2>&1
 git submodule add https://github.com/bats-core/bats-support.git ${tests_dir}/test_helper/bats-support >/dev/null 2>&1
@@ -21,8 +19,18 @@ git submodule update --init >/dev/null 2>&1
 if [[ "${containerized}" == "true" ]]; then
     echo "Running tests with containerized-commands"
     export PATH="${root_dir}/containerized-commands:$PATH"
-    # Include all
-    unset bats_options
+    test_container_image="git-commands-test-container-image"
+    docker build \
+        --no-cache \
+	    --tag "${test_container_image}" \
+	    --file "${root_dir}/tests/containerized-test-env/Dockerfile" \
+	    "${root_dir}" \
+    && docker run \
+        --rm \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v "/var/tmp:/var/tmp" \
+        "${test_container_image}" \
+        bash -c "tests/bats/bin/bats tests"
 else
     export PATH="${root_dir}/containerized-commands/container-context/commands:$PATH"
     which bash > /dev/null
@@ -34,6 +42,6 @@ else
     bash_version=$(bash --version 2> /dev/null | head -n 1)
     echo "'bash' version the commands will be run and tested with:"
     echo "${bash_version}"
-fi
 
-${tests_dir}/bats/bin/bats ${bats_options} ${tests_dir}
+    ${tests_dir}/bats/bin/bats --filter-tags !tag:containerized-only ${tests_dir}
+fi
