@@ -21,10 +21,12 @@ if [[ "${containerized}" == "true" ]]; then
     export PATH="${root_dir}/containerized-commands:$PATH"
     test_container_image="git-commands-test-container-image"
     docker build \
+        --no-cache \
 	    --tag "${test_container_image}" \
 	    --file "${root_dir}/tests/containerized-test-env/Dockerfile" \
 	    "${root_dir}" \
     && docker run \
+        --rm \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v "/var/tmp:/var/tmp" \
         "${test_container_image}" \
