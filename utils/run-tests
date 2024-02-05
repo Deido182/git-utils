@@ -22,7 +22,7 @@ if [[ "${containerized}" == "true" ]]; then
     test_container_image="git-commands-test-container-image"
     docker build \
 	    --tag "${test_container_image}" \
-	    --file "${root_dir}/tests/Dockerfile" \
+	    --file "${root_dir}/tests/containerized-test-env/Dockerfile" \
 	    "${root_dir}" \
     && docker run \
         -v /var/run/docker.sock:/var/run/docker.sock \
