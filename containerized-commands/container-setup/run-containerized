@@ -24,8 +24,11 @@ docker build \
 	"${CONTAINER_CONTEXT}" >/dev/null 2>&1
 
 if [[ $? != 0 ]]; then
+	echo "ERROR: 'docker build' failed"
 	exit 1
 fi
+
+yes | docker image prune >/dev/null 2>&1 & # Remove dangling images; no need to wait for it
 
 serialize() {
 	params=("$@")
