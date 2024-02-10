@@ -30,6 +30,7 @@ if [[ "${containerized}" == "true" ]]; then
         -v "/var/tmp:/var/tmp" \
         "${test_container_image}" \
         bash -c "tests/bats/bin/bats tests"
+    yes | docker image prune >/dev/null 2>&1 & # Remove dangling images
 else
     export PATH="${root_dir}/containerized-commands/container-context/commands:$PATH"
     which bash > /dev/null
