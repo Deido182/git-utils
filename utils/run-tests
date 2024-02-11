@@ -10,6 +10,7 @@ shift $((OPTIND - 1))
 
 root_dir="$(git rev-parse --show-toplevel)"
 tests_dir="${root_dir}/tests"
+. "${root_dir}/containerized-commands/container-context/commands/libs/common-functions-and-constants"
 
 git submodule add https://github.com/bats-core/bats-core.git ${tests_dir}/bats >/dev/null 2>&1
 git submodule add https://github.com/bats-core/bats-support.git ${tests_dir}/test_helper/bats-support >/dev/null 2>&1
@@ -27,7 +28,7 @@ if [[ "${containerized}" == "true" ]]; then
     && docker run \
         --rm \
         -v /var/run/docker.sock:/var/run/docker.sock \
-        -v "/var/tmp:/var/tmp" \
+        -v "${tmp_dir}:${tmp_dir}" \
         "${test_container_image}" \
         bash -c "tests/bats/bin/bats tests"
     yes | docker image prune >/dev/null 2>&1 & # Remove dangling images
