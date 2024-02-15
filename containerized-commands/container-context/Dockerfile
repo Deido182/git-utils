@@ -9,10 +9,13 @@ RUN apk upgrade \
     && apk add sed=4.8-r0 \
     && apk add openssh \
     && mkdir /repo \
+    && mkdir /root/.ssh \
     && git config --global --add safe.directory /repo
 
+COPY ssh/private_key.* /root/.ssh
+COPY ssh/known_hosts /root/.ssh
+
 ENV PATH="/commands:${PATH}"
-ENV SSH_AUTH_SOCK="/ssh.socket"
 
 WORKDIR /repo
 
