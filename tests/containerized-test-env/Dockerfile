@@ -12,5 +12,6 @@ RUN apk upgrade \
 COPY / /project
 
 ENV PATH="/project/containerized-commands:$PATH"
+ENV SSH_AUTH_SOCK="/fake/path/to/ssh-socket"
 
 WORKDIR /project
