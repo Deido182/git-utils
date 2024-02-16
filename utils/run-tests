@@ -9,8 +9,9 @@ done
 shift $((OPTIND - 1))
 
 root_dir="$(git rev-parse --show-toplevel)"
+container_context="${root_dir}/containerized-commands/container-context"
 tests_dir="${root_dir}/tests"
-. "${root_dir}/containerized-commands/container-context/commands/libs/common-functions-and-constants"
+. "${container_context}/commands/libs/common-functions-and-constants"
 
 git submodule add https://github.com/bats-core/bats-core.git ${tests_dir}/bats >/dev/null 2>&1
 git submodule add https://github.com/bats-core/bats-support.git ${tests_dir}/test_helper/bats-support >/dev/null 2>&1
@@ -33,7 +34,7 @@ if [[ "${containerized}" == "true" ]]; then
         bash -c "tests/bats/bin/bats tests"
     yes | docker image prune >/dev/null 2>&1 & # Remove dangling images
 else
-    export PATH="${root_dir}/containerized-commands/container-context/commands:$PATH"
+    export PATH="${container_context}/commands:$PATH"
     which bash > /dev/null
     if [[ $? != 0 ]]; then
         echo "ERROR: no 'bash' version installed"

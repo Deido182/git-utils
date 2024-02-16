@@ -12,5 +12,12 @@ RUN apk upgrade \
 COPY / /project
 
 ENV PATH="/project/containerized-commands:$PATH"
+ENV SSH_DIR="/project/containerized-commands/container-context/ssh"
+
+RUN rm -r "${SSH_DIR}"; \
+    mkdir "${SSH_DIR}" \
+    && touch "${SSH_DIR}/private_key.1" \
+    && chmod 600 "${SSH_DIR}/private_key.1" \
+    && touch "${SSH_DIR}/known_hosts" 
 
 WORKDIR /project
