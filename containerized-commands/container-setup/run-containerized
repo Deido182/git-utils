@@ -48,4 +48,4 @@ docker run \
 	--volume="${REPO_DIR}:/repo" \
 	--volume="${tmp_dir}:${tmp_dir}" \
 	"${CONTAINER_IMAGE_TAG}" \
-	ssh-agent bash -c "ssh-add /root/.ssh/private_key.* && ${serialized_params}"
+	ssh-agent bash -c "ssh-add /root/.ssh/private_key.*; ${serialized_params}"

@@ -21,9 +21,6 @@ git submodule update --init >/dev/null 2>&1
 if [[ "${containerized}" == "true" ]]; then
     echo "Running tests with containerized-commands"
     test_container_image="git-commands-test-container-image"
-    if [ ! -d "${container_context}/ssh" ]; then
-        mkdir "${container_context}/ssh"
-    fi
     docker build \
         --no-cache \
 	    --tag "${test_container_image}" \
