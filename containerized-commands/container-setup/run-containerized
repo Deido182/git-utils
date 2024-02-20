@@ -3,7 +3,12 @@
 . "$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )/../container-context/commands/libs/common-functions-and-constants"
 
 REPO_DIR="$(git rev-parse --show-toplevel)"
-REPO_NAME="$(basename ${REPO_DIR})"
+if [[ $? == 0 ]]; then
+	REPO_NAME="$(basename ${REPO_DIR})"
+else
+	REPO_DIR="/dev/null"
+	REPO_NAME="no-repo"
+fi
 CONTAINER_BASENAME="git-commands-container"
 CONTAINER_NAME="${CONTAINER_BASENAME}-${REPO_NAME}"
 CONTAINER_IMAGE_TAG="${CONTAINER_BASENAME}-image"
@@ -28,7 +33,7 @@ yes | docker image prune >/dev/null 2>&1 & # Remove dangling images; no need to 
 serialize() {
 	params=("$@")
 	local out="${params[0]}"
-	for i in $(seq 1 1 $((${#params[@]}-1))); do
+	for i in $(seq 1 1 $((${#params[@]}-1)) 2> /dev/null); do
 		if [[ "${params[i]}" == *[[:space:]]* || "${params[i]}" == "" ]]; then
 			out="${out} \"${params[i]}\""
 		else 
