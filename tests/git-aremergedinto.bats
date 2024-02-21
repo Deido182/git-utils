@@ -107,3 +107,23 @@ load test-template.bats
     remove_repo ${repo2}
     assert [ ${ok} = "Y" ]
 }
+
+@test "[run outside of a repo] assess there is a feature that has not been merged, while a repo does not exist" {
+    yes | rm -r .git
+    run git rev-parse --is-inside-work-tree
+    assert_failure # Then not a repo
+    feature1_name=test-1
+    feature2_name=test-2
+    repo1="${tmp_dir}/test-aremergedinto-repo-1"
+    repo2="${tmp_dir}/test-aremergedinto-repo-2"
+    create_repo ${repo2}
+    url1="file://${repo1}/.git"
+    url2="file://${repo2}/.git"
+    cd ${repo2}
+    git checkout -b "feature/${feature2_name}"
+    git commit -m "Commit" --allow-empty
+    ans=$(git aremergedinto -n "${feature2_name}" -u "${url1}" -u "${url2}" -n "${feature1_name}" master)
+    [[ "$(echo ${ans} | grep -o ERROR | wc -l)" == 2 ]] && [[ "$(echo ${ans} | grep -o WARNING | wc -l)" == 1 ]] && ok=Y || ok=N
+    remove_repo ${repo2}
+    assert [ ${ok} = "Y" ]
+}
