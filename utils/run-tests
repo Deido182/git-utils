@@ -9,20 +9,32 @@ done
 shift $((OPTIND - 1))
 
 root_dir="$(git rev-parse --show-toplevel)"
+container_context="${root_dir}/containerized-commands/container-context"
 tests_dir="${root_dir}/tests"
+. "${container_context}/commands/libs/common-functions-and-constants"
 
 git submodule add https://github.com/bats-core/bats-core.git ${tests_dir}/bats >/dev/null 2>&1
 git submodule add https://github.com/bats-core/bats-support.git ${tests_dir}/test_helper/bats-support >/dev/null 2>&1
 git submodule add https://github.com/bats-core/bats-assert.git ${tests_dir}/test_helper/bats-assert >/dev/null 2>&1
 git submodule update --init >/dev/null 2>&1
 
-root_dir="$(git rev-parse --show-toplevel)"
-
 if [[ "${containerized}" == "true" ]]; then
     echo "Running tests with containerized-commands"
-    export PATH="${root_dir}/containerized-commands:$PATH"
+    test_container_image="git-commands-test-container-image"
+    docker build \
+        --no-cache \
+	    --tag "${test_container_image}" \
+	    --file "${root_dir}/tests/containerized-test-env/Dockerfile" \
+	    "${root_dir}" \
+    && docker run \
+        --rm \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v "${tmp_dir}:${tmp_dir}" \
+        "${test_container_image}" \
+        bash -c "tests/bats/bin/bats tests"
+    yes | docker image prune >/dev/null 2>&1 & # Remove dangling images
 else
-    export PATH="${root_dir}/containerized-commands/container-context/commands:$PATH"
+    export PATH="${container_context}/commands:$PATH"
     which bash > /dev/null
     if [[ $? != 0 ]]; then
         echo "ERROR: no 'bash' version installed"
@@ -32,6 +44,6 @@ else
     bash_version=$(bash --version 2> /dev/null | head -n 1)
     echo "'bash' version the commands will be run and tested with:"
     echo "${bash_version}"
-fi
 
-${tests_dir}/bats/bin/bats ${tests_dir}
+    ${tests_dir}/bats/bin/bats --filter-tags !tag:containerized-only ${tests_dir}
+fi
