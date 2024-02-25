@@ -4,7 +4,7 @@ The ```docs``` directory contains the description of each command.
 
 ### Installation
 The suggested procedure consists in:
-- running ```utils/install``` to install the commands (this utility considers the head of the <b>local</b> ```master``` branch by default, but you can run ```utils/install [<ref>]``` to install the version of the commands present in a given reference). Provided that a suitable version of ```docker``` is installed, through the ```-c``` option is possible to get the containerized version of the commands.
+- running ```utils/install``` to install the commands (this utility considers the head of the <b>local</b> ```master``` branch by default, but you can run ```utils/install [<ref>]``` to install the version of the commands present in a given reference). Provided that a suitable version of ```docker``` is installed, the containerized version of the commands is available through the ```-c``` option.
 - adding ```installed-commands``` (generated and added to the root directory of the repository) to the ```PATH```
 
 Otherwise, you can directly copy the content of either ```containerized-commands/container-context/commands``` (where the real commands reside) or ```containerized-commands``` (for the containerized ones) into either ```/usr/bin``` or any other directory already part of ```PATH```.
