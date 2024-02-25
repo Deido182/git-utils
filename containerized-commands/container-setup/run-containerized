@@ -2,7 +2,7 @@
 
 . "$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )/../container-context/commands/libs/common-functions-and-constants"
 
-REPO_DIR="$(git rev-parse --show-toplevel)"
+REPO_DIR="$(git rev-parse --show-toplevel 2> /dev/null)"
 if [[ $? == 0 ]]; then
 	REPO_NAME="$(basename ${REPO_DIR})"
 else
@@ -29,19 +29,6 @@ if [[ $? != 0 ]]; then
 fi
 
 yes | docker image prune >/dev/null 2>&1 & # Remove dangling images; no need to wait for it
-
-serialize() {
-	params=("$@")
-	local out="${params[0]}"
-	for i in $(seq 1 1 $((${#params[@]}-1)) 2> /dev/null); do
-		if [[ "${params[i]}" == *[[:space:]]* || "${params[i]}" == "" ]]; then
-			out="${out} \"${params[i]}\""
-		else 
-			out="${out} ${params[i]}"
-		fi
-	done
-	echo "${out}"
-}
 
 serialized_params="$(serialize "$@")"
 
