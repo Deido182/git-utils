@@ -151,3 +151,16 @@ index_of() {
   done
   echo -1
 }
+
+serialize() {
+	params=("$@")
+	local out="${params[0]}"
+	for i in $(seq 1 1 $((${#params[@]}-1)) 2> /dev/null); do
+		if [[ "${params[i]}" == *[[:space:]]* || "${params[i]}" == "" ]]; then
+			out="${out} \"${params[i]}\""
+		else 
+			out="${out} ${params[i]}"
+		fi
+	done
+	echo "${out}"
+}

@@ -30,19 +30,6 @@ fi
 
 yes | docker image prune >/dev/null 2>&1 & # Remove dangling images; no need to wait for it
 
-serialize() {
-	params=("$@")
-	local out="${params[0]}"
-	for i in $(seq 1 1 $((${#params[@]}-1)) 2> /dev/null); do
-		if [[ "${params[i]}" == *[[:space:]]* || "${params[i]}" == "" ]]; then
-			out="${out} \"${params[i]}\""
-		else 
-			out="${out} ${params[i]}"
-		fi
-	done
-	echo "${out}"
-}
-
 serialized_params="$(serialize "$@")"
 
 # tmp_dir shared to make it testable through mocked repos on host file uri (file://)
