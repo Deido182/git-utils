@@ -14,6 +14,7 @@ RUN apk upgrade \
 
 COPY ssh/private_key.* /root/.ssh
 COPY ssh/known_hosts /root/.ssh
+RUN chmod 600 /root/.ssh/private_key.*
 
 ENV PATH="/commands:${PATH}"
 
