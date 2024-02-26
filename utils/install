@@ -29,6 +29,7 @@ mkdir ${installed_commands_dir} 2>/dev/null &&
 	git checkout ${ref}
 
 if [[ "${containerized}" == "true" ]]; then
+	mkdir ${containerized_commands_dir}/container-context/ssh
 	cp -r ${containerized_commands_dir}/container-context ${installed_commands_dir} &&
 	cp -r ${containerized_commands_dir}/container-setup ${installed_commands_dir} &&
 	find ${containerized_commands_dir}/git-* -type f 2>/dev/null |

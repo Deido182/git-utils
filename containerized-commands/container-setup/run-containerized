@@ -2,8 +2,13 @@
 
 . "$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )/../container-context/commands/libs/common-functions-and-constants"
 
-REPO_DIR="$(git rev-parse --show-toplevel)"
-REPO_NAME="$(basename ${REPO_DIR})"
+REPO_DIR="$(git rev-parse --show-toplevel 2> /dev/null)"
+if [[ $? == 0 ]]; then
+	REPO_NAME="$(basename ${REPO_DIR})"
+else
+	unset REPO_DIR
+	REPO_NAME="no-repo"
+fi
 CONTAINER_BASENAME="git-commands-container"
 CONTAINER_NAME="${CONTAINER_BASENAME}-${REPO_NAME}"
 CONTAINER_IMAGE_TAG="${CONTAINER_BASENAME}-image"
@@ -16,33 +21,22 @@ docker build \
 	--tag "${CONTAINER_IMAGE_TAG}" \
 	--build-arg EMAIL="$(git config --get user.email)" \
 	--build-arg NAME="$(git config --get user.name)" \
-	--build-arg COMMANDS_DIR="commands" \
 	"${CONTAINER_CONTEXT}" >/dev/null 2>&1
 
-serialize() {
-	params=("$@")
-	local out="${params[0]}"
-	for i in $(seq 1 1 $((${#params[@]}-1))); do
-		if [[ "${params[i]}" == *[[:space:]]* || "${params[i]}" == "" ]]; then
-			out="${out} \"${params[i]}\""
-		else 
-			out="${out} ${params[i]}"
-		fi
-	done
-	echo "${out}"
-}
+if [[ $? != 0 ]]; then
+	echo "ERROR: 'docker build' failed"
+	exit 1
+fi
+
+yes | docker image prune >/dev/null 2>&1 & # Remove dangling images; no need to wait for it
 
 serialized_params="$(serialize "$@")"
 
 # tmp_dir shared to make it testable through mocked repos on host file uri (file://)
 # Not that good, I agree
 docker run \
+	--rm \
 	--name="${CONTAINER_NAME}" \
-	--volume="${REPO_DIR}:/repo" \
-	--volume="${tmp_dir}:${tmp_dir}" \
+	--volume="${tmp_dir}:${tmp_dir}" $([[ "${REPO_DIR}" != "" ]] && echo "--volume="${REPO_DIR}":/repo") \
 	"${CONTAINER_IMAGE_TAG}" \
-	bash -c "${serialized_params}"
-out=$?
-	
-docker rm "${CONTAINER_NAME}" >/dev/null 2>&1
-exit ${out}
+	ssh-agent bash -c "ssh-add /root/.ssh/private_key.*; ${serialized_params}"
