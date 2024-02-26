@@ -1,6 +1,0 @@
-#!/bin/bash
-
-new_message="$2"
-desired_ref=$(git rev-parse $1)
-git rebase --keep-empty --rebase-merges ${desired_ref}^ \
-	--exec 'if [ $(git rev-parse HEAD) = '${desired_ref}' ]; then git commit --amend --allow-empty --no-edit -m '"\"${new_message}\""'; fi'

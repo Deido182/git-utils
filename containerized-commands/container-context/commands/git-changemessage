@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+while getopts "m:r:w:p:" opt; do
+  case "${opt}" in
+  m) export new_message="${OPTARG}" ;;
+  r) export replace="${OPTARG}" ;; # As basic regex
+  w) export with="${OPTARG}" ;;
+  p) export replace="^"
+     export with="${OPTARG}" ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [[ ! -z "${new_message}" ]] && [[ ! -z "${replace}" ]]; then
+  print_error "Both -m and -r (or -p) options are present"
+  exit 1
+fi
+
+. "$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )/libs/common-functions-and-constants"
+
+raw_refs=$@
+IFS=$'\n'
+rev_list=($(git rev-list HEAD))
+unset IFS
+indexes=()
+
+for ref in ${raw_refs[@]}; do
+  toks=()
+  split "${ref}" ".." toks
+  index0=$(index_of rev_list "$(git rev-parse ${toks[0]})")
+  if [[ ${#toks[@]} > 1 ]]; then
+    index1=$(index_of rev_list "$(git rev-parse ${toks[1]})")
+  fi
+  if [[ ! -z ${index1} && ${index0} != ${index1} ]]; then
+    if [[ ${index0} < ${index1} ]]; then
+      print_error "'${ref}' is not a valid range"
+      exit 1
+    fi
+    indexes+=($(seq ${index1} 1 $((${index0}-1))))
+    unset index1
+  fi
+  indexes+=(${index0})
+done
+
+
+commit_new_message() {
+  local curr="$(git rev-parse HEAD)"
+  if [[ "${curr}" == "${ref}" ]]; then 
+    if [[ ! -z "${replace}" ]]; then 
+      new_message="$(git show --pretty=format:"%B" --no-patch ${ref} | sed 's|'"${replace}"'|'"${with}"'|g')"
+    fi
+    git commit --amend --allow-empty --allow-empty-message --no-edit -m "${new_message}"
+  fi
+}
+
+printf -v serialized_fun '%q ' "$(declare -f commit_new_message); commit_new_message"
+export serialized_fun
+
+drop_duplicates indexes
+sort_array -n indexes
+
+for i in ${indexes[@]}; do
+  export ref="${rev_list[i]}"
+  git rebase --keep-empty \
+    --allow-empty-message \
+    --rebase-merges \
+    --autostash \
+    --exec 'bash -c "eval ${serialized_fun}"' \
+    "${ref}^"
+done

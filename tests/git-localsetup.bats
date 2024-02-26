@@ -22,3 +22,39 @@ load test-template.bats
 	no_file_2=$([[ ! -f file2 ]] && echo 1 || echo 0)
 	assert [ ${no_file_2} -eq 1 ]
 }
+
+@test "fail due to not valid action" {
+	git branch develop
+	echo "proper content 1" >file1
+	echo "proper content 2" >file2
+	git add --all
+	git commit -m "proper changes"
+	last_proper_commit=$(git rev-parse HEAD)
+	new_content_file1="new content for local run"
+	echo ${new_content_file1} >file1
+	git add file1
+	rm file2
+
+	run git localsetup saved dev
+	assert_failure
+
+	# No action at all
+	run git localsetup
+	assert_failure
+}
+
+@test "fail due to no key specified" {
+	git branch develop
+	echo "proper content 1" >file1
+	echo "proper content 2" >file2
+	git add --all
+	git commit -m "proper changes"
+	last_proper_commit=$(git rev-parse HEAD)
+	new_content_file1="new content for local run"
+	echo ${new_content_file1} >file1
+	git add file1
+	rm file2
+
+	run git localsetup save
+	assert_failure
+}

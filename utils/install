@@ -1,8 +1,16 @@
-#!/bin/bash -i
-# Run as 'interactive' so as to being able to source ~/.bashrc
+#!/usr/bin/env bash
+
+containerized=false
+while getopts "c" opt; do
+  case "${opt}" in
+  c) containerized=true ;;
+  esac
+done
+shift $((OPTIND - 1))
 
 root_dir="$(git rev-parse --show-toplevel)"
-commands_dir="${root_dir}/commands"
+containerized_commands_dir="${root_dir}/containerized-commands"
+commands_dir="${containerized_commands_dir}/container-context/commands"
 installed_commands_dir="${root_dir}/installed-commands"
 curr=$(git rev-parse --abbrev-ref HEAD)
 ref=$1
@@ -16,11 +24,24 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
-rm -r ${installed_commands_dir} 2>/dev/null
+rm -r ${installed_commands_dir} 2>/dev/null &&
 mkdir ${installed_commands_dir} 2>/dev/null &&
-	git checkout ${ref} &&
+	git checkout ${ref}
+
+if [[ "${containerized}" == "true" ]]; then
+	mkdir ${containerized_commands_dir}/container-context/ssh
+	cp -r ${containerized_commands_dir}/container-context ${installed_commands_dir} &&
+	cp -r ${containerized_commands_dir}/container-setup ${installed_commands_dir} &&
+	find ${containerized_commands_dir}/git-* -type f 2>/dev/null |
+	xargs -L 1 -i bash -c 'basename {}' |
+		xargs -L 1 -i bash -c "cp --force ${containerized_commands_dir}/{} ${installed_commands_dir} 2> /dev/null && \
+						   chmod 755 ${installed_commands_dir}/{}"
+else
+	cp -r ${commands_dir}/libs ${installed_commands_dir} &&
 	find ${commands_dir}/git-* -type f 2>/dev/null |
 	xargs -L 1 -i bash -c 'basename {}' |
 		xargs -L 1 -i bash -c "cp --force ${commands_dir}/{} ${installed_commands_dir} 2> /dev/null && \
 						   chmod 755 ${installed_commands_dir}/{}"
+fi
+	
 git checkout ${curr}

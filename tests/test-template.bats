@@ -7,42 +7,33 @@
 
 curr_dir="$(pwd)"
 root_dir="$(git rev-parse --show-toplevel)"
-test_repo="/tmp/$(basename ${root_dir})/test-repo"
-mocked_remote="/tmp/$(basename ${root_dir})/mocked-remote"
-installed_commands_basename=installed-commands
+. "${root_dir}/containerized-commands/container-context/commands/libs/common-functions-and-constants"
+test_repos_dir="${tmp_dir}/.git-utils-mocked-repos"
 
-remove_repo() {
-    if [ -d "$1" ]; then
-        yes | rm -r $1
-    fi
-}
-
-create_repo() {
-    remove_repo $1
-    mkdir -p $1 &&
-        cd $1 &&
-        git init &&
-        git commit -m "initial commit" --allow-empty # Necessary for HEAD
-    cd ${curr_dir}
-}
+test_repo="${test_repos_dir}/test-repo"
+mocked_remote="${test_repos_dir}/mocked-remote"
+user_name="Test Name"
+user_email="test@name.com"
 
 # Run before each test; this function must be unique and all tests should source this file
 setup() {
-    DIR="$(cd "$(dirname "$BATS_TEST_FILENAME")" >/dev/null 2>&1 && pwd)"
-    # Make executables in commands/ visible to PATH
-    PATH="$DIR/../commands:$PATH"
     # To hide the installed ones (that are not the ones to be tested)
     if [[ -d "${root_dir}/${installed_commands_basename}" ]]; then
         mv "${root_dir}/${installed_commands_basename}" "${root_dir}/.${installed_commands_basename}"
     fi
 
     # Setup new test-repo
-    create_repo ${test_repo}
+    create_repo "${test_repo}" "${user_name}" "${user_email}"
+    if [[ $? != 0 ]]; then
+        exit 1
+    fi
     # Add mocked remote
-    create_repo ${mocked_remote}
-    cd ${mocked_remote}
+    create_repo "${mocked_remote}" "${user_name}" "${user_email}"
+    if [[ $? != 0 ]]; then
+        exit 1
+    fi
     git config receive.denyCurrentBranch ignore
-    cd ${test_repo}
+    cd "${test_repo}"
     git remote add origin "file://${mocked_remote}/.git"
     git push --force -u origin master
 
@@ -53,9 +44,9 @@ setup() {
 
 # Run after each test; this function must be unique and all tests should source this file
 teardown() {
-    cd ${curr_dir}
-    remove_repo ${test_repo}
-    remove_repo ${mocked_remote}
+    cd "${curr_dir}"
+    remove_repo "${test_repo}"
+    remove_repo "${mocked_remote}"
     if [[ -d "${root_dir}/.${installed_commands_basename}" ]]; then
         mv "${root_dir}/.${installed_commands_basename}" "${root_dir}/${installed_commands_basename}"
     fi
