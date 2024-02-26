@@ -1,17 +1,16 @@
 # git-utils
-A set of custom commands implementing shortcuts for very common cases.<br>
+<i>A set of custom commands implementing shortcuts for very common cases</i>.<br><br>
 The ```docs``` directory contains the description of each command.
 
 ### Installation
 The suggested procedure consists in:
-- running ```utils/install``` to install the commands (this utility considers the head of the <b>local</b> ```master``` branch by default, but you can run ```utils/install [<ref>]``` to install the version of the commands present in a given reference)
-- adding ```installed-commands``` (generated at the same level of ```commands```) to the ```PATH```
+- running ```utils/install``` to install the commands (this utility considers the head of the <b>local</b> ```master``` branch by default, but you can run ```utils/install [<ref>]``` to install the version of the commands present in a given reference). Provided that a suitable version of ```docker``` is installed, the containerized version of the commands is available through the ```-c``` option.
+- adding ```installed-commands``` (generated and added to the root directory of the repository) to the ```PATH```
 
-Have a look at the ```README``` file of the ```commands``` directory for a few more details.
-
-Otherwise, you could directly copy the scripts present in ```commands``` into either ```/usr/bin``` or any other directory already part of ```PATH```.
+Otherwise, you can directly copy the content of either ```containerized-commands/container-context/commands``` (where the real commands reside) or ```containerized-commands``` (for the containerized ones) into either ```/usr/bin``` or any other directory already part of ```PATH```.<br><br>
+Notice that, to use the containerized version of the commands, filling ```installed-commands/container-context/ssh``` may be necessary. In particular, both ```~/.ssh/known_hosts``` and every used private key should be copied inside the above-mentioned directory. Moreover, private keys should be named as ```private_key.1```, ..., ```private_key.<n>```.
 
 ### Development
-For each command of the form ```git-<name>``` added to the ```commands``` directory, a description file ```git-<name>.md``` and a unit-tests file ```git-<name>.bats``` must be added to ```docs``` and ```tests``` directories, respectively.<br>
-The branch ```factory/commands-features``` should be used as ```scaffolding``` for new commands. Therefore, new ```features``` should be detached from it.<br>
-```utils/run-tests``` executes all ```.bats``` files stored in ```tests```.
+The branch ```factory/commands-features``` should be used as ```scaffolding``` for new commands. Therefore, new ```features``` should be detached from it.<br><br>
+For each command of the form ```git-<name>``` added to ```containerized-commands/container-context/commands```, a description file ```git-<name>.md```, a unit-tests file ```git-<name>.bats``` and the containerized-wrapper ```git-<name>``` must be added to the ```docs```, ```tests``` and ```containerized-commands``` directories, respectively.<br><br>
+```utils/run-tests [-c]``` executes all ```.bats``` files stored in ```tests```.

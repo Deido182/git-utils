@@ -84,3 +84,12 @@ load test-template.bats
     ok=$([[ ${index} == 1 ]] && echo 1 || echo 0)
     assert [ ${ok} -eq 1 ]
 }
+
+@test "test the serialize function" {
+    token1="tok-1"
+    token2="tok-2"
+    assert_equal "$(serialize "${token1}" "${token2}")" "tok-1 tok-2"
+
+    token2="tok with spaces"
+    assert_equal "$(serialize "${token1}" "${token2}")" "tok-1 \"tok with spaces\""
+}
