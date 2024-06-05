@@ -194,3 +194,17 @@ load test-template.bats
 	still_on_feature=$([[ $(git rev-parse --abbrev-ref HEAD) == ${feature} ]] && echo 1 || echo 0)
 	assert [ ${still_on_feature} -eq 1 ]
 }
+
+@test "update 1.0.10 instead of 1.0.9" {
+	release=release/1.0.10
+	feature=feature/x
+	git branch release/1.0.9
+	git branch ${release}
+	git push -u origin release/1.0.9
+	git push -u origin ${release}
+	git checkout -b ${feature}
+	git commit -m "commit to push" --allow-empty
+	git updatetest -l
+	merged=$(git merge-base --is-ancestor ${feature} origin/${release} && echo 1 || echo 0)
+	assert_equal ${merged} 1
+}
