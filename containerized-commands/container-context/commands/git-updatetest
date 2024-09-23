@@ -25,7 +25,7 @@ lastv="$(\
   git branch -r --ignore-case \
   | grep release \
   | sed 's|.*release/||g' \
-  | sort -t '.' -n -k1 -k2 -k3 \
+  | sort -V \
   | tail -n 1
 )"
 [[ ${latest} == true ]] && version="${lastv}" || version="$1"
