@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+eval "git show $(git blame $1 -L $2,$3 -w -e --date=raw | cut -d ' ' --fields=1,4 | sort -n -k2 | cut -d ' ' -f 1 | uniq | tr '\n' ' ')"
