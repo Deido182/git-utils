@@ -1,0 +1,1 @@
+```git showaffecting <file-path> <from-line> <to-line>``` shows all commits affecting those lines, starting from the most recent.
