@@ -25,6 +25,7 @@ load test-template.bats
 	git commit -m "Fourth line modified"
 	expected="$(git rev-parse HEAD^) $(git rev-parse HEAD^^) "
 	actual="$(git showaffecting file 2 3 | grep "^commit" | cut -d ' ' -f 2 | tr '\n' ' ')"
+	assert_equal "${actual}" "${expected}"
 	git checkout HEAD^^
 	expected="$(git rev-parse HEAD) "
 	actual="$(git showaffecting file 2 2 | grep "^commit" | cut -d ' ' -f 2 | tr '\n' ' ')"
