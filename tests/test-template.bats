@@ -1,10 +1,5 @@
 #!/usr/bin/env bats
 
-# git submodule add https://github.com/bats-core/bats-core.git test/bats
-# git submodule add https://github.com/bats-core/bats-support.git test/test_helper/bats-support
-# git submodule add https://github.com/bats-core/bats-assert.git test/test_helper/bats-assert
-# git submodule update --init
-
 curr_dir="$(pwd)"
 root_dir="$(git rev-parse --show-toplevel)"
 . "${root_dir}/containerized-commands/container-context/commands/libs/common-functions-and-constants"
