@@ -100,3 +100,19 @@ other_branch=other
     different=$([[ "$(git log --format=%B -n 1 ${other_branch}^^)" != "$(git log --format=%B -n 1 ${commit_to_keep})" ]] && echo 1 || echo 0)
     assert [ ${different} -eq 1 ]
 }
+
+@test "move to a branch already existing on remote, but not locally" {
+    git checkout -b already-existing
+    echo "Hi!" > file
+    git add --all
+    git commit -m "File created"
+    git push -u origin already-existing
+    git checkout master
+    git branch -D already-existing
+    echo "How are you?" > file2
+    git add --all
+    git commit -m "File2 created"
+    git movelaststo already-existing 1
+    git checkout already-existing
+    git push
+}

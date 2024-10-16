@@ -2,7 +2,7 @@
 
 curr=$(git rev-parse --abbrev-ref HEAD)
 receiving="$1"
-if [ $(git rev-parse --verify "$receiving" 2>/dev/null) ]; then
+if [ "$(git rev-parse --verify $receiving 2>/dev/null || git ls-remote --heads origin refs/heads/$receiving 2>/dev/null)" ]; then
    # The branch already exists
    git checkout "$receiving" &&
       git cherry-pick \
