@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+eval "git show $(\
+    git blame $1 -L $2,$3 -w -e --date=raw \
+    | sed -r 's/\s+/ /g' \
+    | sed -r 's/\(?\s*<[^>]*>\s*//g' \
+    | cut -d ' ' -f 1,2 \
+    | sort -n -k2 -r \
+    | cut -d ' ' -f 1 \
+    | uniq \
+    | tr '\n' ' ')"
